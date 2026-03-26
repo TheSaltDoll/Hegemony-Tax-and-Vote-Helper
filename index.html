@@ -1,0 +1,1727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hegemony">
+<title>Hegemony Helper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0e14;
+    --surface: #141720;
+    --surface2: #1a1e2a;
+    --border: #252a3a;
+    --text: #e2e4ea;
+    --text-dim: #7a7f94;
+    --accent-wc: #f05050;
+    --accent-mc: #f0c040;
+    --accent-cap: #4a9df0;
+    --accent-inf: #b070f0;
+    --accent-wc-dim: rgba(240,80,80,0.12);
+    --accent-mc-dim: rgba(240,192,64,0.12);
+    --accent-cap-dim: rgba(74,157,240,0.12);
+    --accent-inf-dim: rgba(176,112,240,0.12);
+    --green: #4af07a;
+    --radius: 14px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html, body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  body {
+    padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px;
+    padding-top: max(env(safe-area-inset-top), 12px);
+    padding-bottom: max(env(safe-area-inset-bottom), 24px);
+  }
+
+  .app {
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    padding: 12px 0 8px;
+  }
+  header h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, var(--accent-wc), var(--accent-mc), var(--accent-cap));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  header p {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+  }
+
+  /* === TAB SWITCHER === */
+  .tab-bar {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 3px;
+    margin-bottom: 14px;
+  }
+  .tab-btn {
+    flex: 1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 10px 8px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    border-radius: 9px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: var(--surface2);
+    color: var(--text);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+
+  /* === SCREENS === */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* === SECTIONS === */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+
+  /* === PARAM ROW === */
+  .param-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .param-row:last-child { margin-bottom: 0; }
+
+  .param-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    flex-shrink: 1;
+    padding-right: 10px;
+    line-height: 1.3;
+  }
+
+  /* === SEGMENTED CONTROL === */
+  .seg-control {
+    display: flex;
+    background: var(--bg);
+    border-radius: 9px;
+    padding: 3px;
+    flex-shrink: 0;
+  }
+  .seg-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .seg-btn.active {
+    background: var(--surface2);
+    color: var(--text);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+
+  /* === STEPPER === */
+  .stepper {
+    display: flex;
+    align-items: center;
+    background: var(--bg);
+    border-radius: 9px;
+    padding: 3px;
+    flex-shrink: 0;
+  }
+  .stepper button {
+    width: 34px;
+    height: 34px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 18px;
+    font-weight: 600;
+    border-radius: 7px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .stepper button:active { background: var(--surface2); }
+  .stepper button:disabled { opacity: 0.25; }
+  .stepper .stepper-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 36px;
+    text-align: center;
+    color: var(--text);
+  }
+
+  /* === DROPDOWN === */
+  .dropdown-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .dropdown-wrap select {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--bg);
+    border: none;
+    border-radius: 9px;
+    padding: 8px 30px 8px 12px;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+  }
+  .dropdown-wrap::after {
+    content: '▾';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-dim);
+    font-size: 12px;
+    pointer-events: none;
+  }
+
+  /* === TAX MULTIPLIER DISPLAY === */
+  .tax-mult-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    background: var(--bg);
+    border-radius: 9px;
+    padding: 8px 16px;
+    text-align: center;
+    min-width: 44px;
+    transition: all 0.25s ease;
+  }
+  .tax-mult-display.flash {
+    color: var(--green);
+    transform: scale(1.15);
+  }
+
+  /* === NUMBER INPUT === */
+  .num-input {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--bg);
+    border: none;
+    border-radius: 9px;
+    padding: 8px 12px;
+    width: 80px;
+    text-align: center;
+    outline: none;
+  }
+  .num-input:focus {
+    box-shadow: 0 0 0 2px var(--accent-cap);
+  }
+
+  /* === PRIMARY BUTTON === */
+  .calc-btn, .action-btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, var(--accent-wc), var(--accent-mc), var(--accent-cap));
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .calc-btn:active, .action-btn:active {
+    transform: scale(0.97);
+  }
+
+  /* === RESULTS === */
+  .results { display: none; }
+  .results.visible { display: block; }
+
+  .result-card {
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  .result-card.animate {
+    animation: slideUp 0.4s ease forwards;
+  }
+  .result-card:nth-child(1) { animation-delay: 0.15s; }
+  .result-card:nth-child(2) { animation-delay: 0.35s; }
+  .result-card:nth-child(3) { animation-delay: 0.55s; }
+
+  @keyframes slideUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-card.wc {
+    background: var(--accent-wc-dim);
+    border-color: rgba(240,80,80,0.25);
+  }
+  .result-card.mc {
+    background: var(--accent-mc-dim);
+    border-color: rgba(240,192,64,0.25);
+  }
+  .result-card.cap {
+    background: var(--accent-cap-dim);
+    border-color: rgba(74,157,240,0.25);
+  }
+
+  .result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+  .result-name {
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .wc .result-name { color: var(--accent-wc); }
+  .mc .result-name { color: var(--accent-mc); }
+  .cap .result-name { color: var(--accent-cap); }
+
+  .result-total {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .wc .result-total { color: var(--accent-wc); }
+  .mc .result-total { color: var(--accent-mc); }
+  .cap .result-total { color: var(--accent-cap); }
+
+  .result-breakdown {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .result-breakdown span {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* ===================== */
+  /* VOTING BAG STYLES     */
+  /* ===================== */
+
+  .bag-overview {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .bag-player {
+    flex: 1;
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+  }
+  .bag-player .emoji { font-size: 20px; }
+  .bag-player .bag-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 4px 0 2px;
+  }
+  .bag-player .bag-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+  .bag-total {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 6px;
+    margin-bottom: 2px;
+  }
+
+  /* Action buttons grid */
+  .vote-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .vote-action-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 14px 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .vote-action-btn:active {
+    background: var(--surface2);
+    transform: scale(0.97);
+  }
+  .vote-action-btn.full-width {
+    grid-column: 1 / -1;
+  }
+
+  /* Modal overlay */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 100;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 16px;
+    padding-bottom: max(env(safe-area-inset-bottom), 16px);
+  }
+  .modal-overlay.show {
+    display: flex;
+  }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 20px;
+    width: 100%;
+    max-width: 420px;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+  .modal-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .modal-body {
+    margin-bottom: 16px;
+  }
+
+  .modal-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+  .modal-btn:active { transform: scale(0.97); }
+  .modal-btn.primary {
+    background: linear-gradient(135deg, var(--accent-wc), var(--accent-mc), var(--accent-cap));
+    color: #fff;
+  }
+  .modal-btn.secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .modal-btn.danger {
+    background: rgba(240,80,80,0.15);
+    color: var(--accent-wc);
+    border: 1px solid rgba(240,80,80,0.3);
+  }
+  .modal-btn:last-child { margin-bottom: 0; }
+
+  /* Drawn cubes display */
+  .drawn-cubes {
+    font-size: 24px;
+    text-align: center;
+    letter-spacing: 4px;
+    padding: 14px;
+    background: var(--bg);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+    word-break: break-all;
+  }
+
+  /* Cube selection in modals */
+  .cube-select-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+  }
+  .cube-select-label {
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .cube-select-label .player-name {
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+  }
+
+  /* Checkbox for cube selection */
+  .cube-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--bg);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .cube-checkbox.selected {
+    background: var(--surface2);
+    box-shadow: 0 0 0 1px var(--text-dim);
+  }
+  .cube-checkbox .cube-emoji { font-size: 20px; }
+  .cube-checkbox .cube-idx {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  /* For/Against toggle */
+  .vote-stance-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .vote-stance-row:last-child { border-bottom: none; }
+  .vote-stance-label {
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .stance-toggle {
+    display: flex;
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 2px;
+  }
+  .stance-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .stance-btn.active-for {
+    background: rgba(74,240,122,0.2);
+    color: var(--green);
+  }
+  .stance-btn.active-against {
+    background: rgba(240,80,80,0.2);
+    color: var(--accent-wc);
+  }
+  .stance-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  /* Influence cube secret input */
+  .influence-section {
+    text-align: center;
+    padding: 20px 10px;
+  }
+  .influence-section .player-turn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .influence-section .pass-note {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+  .influence-input {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent-inf);
+    background: var(--bg);
+    border: 2px solid var(--accent-inf);
+    border-radius: 12px;
+    width: 80px;
+    text-align: center;
+    padding: 10px;
+    outline: none;
+  }
+  .influence-emoji {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+
+  /* Vote result */
+  .vote-result-box {
+    text-align: center;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+  .vote-result-box.passed {
+    background: rgba(74,240,122,0.1);
+    border: 1px solid rgba(74,240,122,0.3);
+  }
+  .vote-result-box.failed {
+    background: rgba(240,80,80,0.1);
+    border: 1px solid rgba(240,80,80,0.3);
+  }
+  .vote-result-box .result-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+  .passed .result-label { color: var(--green); }
+  .failed .result-label { color: var(--accent-wc); }
+
+  .vote-tally {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.8;
+    margin-bottom: 12px;
+  }
+  .vote-tally span { color: var(--text); font-weight: 600; }
+
+  .cube-movement {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.8;
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  .cube-movement span { color: var(--text); font-weight: 600; }
+
+  /* Error message */
+  .error-msg {
+    background: rgba(240,80,80,0.1);
+    border: 1px solid rgba(240,80,80,0.3);
+    color: var(--accent-wc);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(74,157,240,0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(74,157,240,0); }
+    100% { box-shadow: 0 0 0 0 rgba(74,157,240,0); }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Hegemony Helper</h1>
+    <p>Board Game Companion</p>
+  </header>
+
+  <!-- TAB SWITCHER -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-screen="tax">Tax Calculator</button>
+    <button class="tab-btn" data-screen="vote">Voting &amp; Elections</button>
+  </div>
+
+  <!-- ========== TAX SCREEN ========== -->
+  <div class="screen active" id="screen-tax">
+    <div class="section">
+      <div class="section-title">Policies</div>
+      <div class="param-row">
+        <div class="param-label">Policy 2 (Labor)</div>
+        <div class="seg-control" data-param="policy2">
+          <button class="seg-btn" data-val="A">A</button>
+          <button class="seg-btn active" data-val="B">B</button>
+          <button class="seg-btn" data-val="C">C</button>
+        </div>
+      </div>
+      <div class="param-row">
+        <div class="param-label">Policy 3 (Taxation)</div>
+        <div class="seg-control" data-param="policy3">
+          <button class="seg-btn active" data-val="A">A</button>
+          <button class="seg-btn" data-val="B">B</button>
+          <button class="seg-btn" data-val="C">C</button>
+        </div>
+      </div>
+      <div class="param-row">
+        <div class="param-label">Policy 4 (Healthcare)</div>
+        <div class="seg-control" data-param="policy4">
+          <button class="seg-btn" data-val="A">A</button>
+          <button class="seg-btn active" data-val="B">B</button>
+          <button class="seg-btn" data-val="C">C</button>
+        </div>
+      </div>
+      <div class="param-row">
+        <div class="param-label">Policy 5 (Education)</div>
+        <div class="seg-control" data-param="policy5">
+          <button class="seg-btn" data-val="A">A</button>
+          <button class="seg-btn" data-val="B">B</button>
+          <button class="seg-btn active" data-val="C">C</button>
+        </div>
+      </div>
+      <div class="param-row">
+        <div class="param-label">Tax Multiplier</div>
+        <div class="tax-mult-display" id="taxMultiplierDisplay">5</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title" style="color:var(--accent-wc)">Working Class</div>
+      <div class="param-row">
+        <div class="param-label">Population</div>
+        <div class="stepper" data-param="wcPop" data-min="3" data-max="10" data-val="3">
+          <button class="dec">−</button>
+          <div class="stepper-val">3</div>
+          <button class="inc">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title" style="color:var(--accent-mc)">Middle Class</div>
+      <div class="param-row">
+        <div class="param-label">Capitalist/Public Co. w/ MC Workers</div>
+        <div class="stepper" data-param="mcCompanies" data-min="0" data-max="21" data-val="2">
+          <button class="dec">−</button>
+          <div class="stepper-val">2</div>
+          <button class="inc">+</button>
+        </div>
+      </div>
+      <div class="param-row">
+        <div class="param-label">Operational MC Companies</div>
+        <div class="stepper" data-param="mcOps" data-min="0" data-max="8" data-val="2">
+          <button class="dec">−</button>
+          <div class="stepper-val">2</div>
+          <button class="inc">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title" style="color:var(--accent-cap)">Capitalist</div>
+      <div class="param-row">
+        <div class="param-label">Operational Cap. Companies</div>
+        <div class="stepper" data-param="capOps" data-min="0" data-max="12" data-val="3">
+          <button class="dec">−</button>
+          <div class="stepper-val">3</div>
+          <button class="inc">+</button>
+        </div>
+      </div>
+      <div class="param-row">
+        <div class="param-label">Revenue</div>
+        <input type="number" class="num-input" id="capRevenue" value="120" min="0" inputmode="numeric">
+      </div>
+    </div>
+
+    <button class="calc-btn" id="calcBtn">Calculate Taxes</button>
+
+    <div class="results" id="results">
+      <div class="result-card wc" id="resWC"></div>
+      <div class="result-card mc" id="resMC"></div>
+      <div class="result-card cap" id="resCap"></div>
+    </div>
+  </div>
+
+  <!-- ========== VOTING SCREEN ========== -->
+  <div class="screen" id="screen-vote">
+    <!-- Bag overview -->
+    <div class="section" id="bagOverviewSection">
+      <div class="section-title">Voting Bag</div>
+      <div class="bag-overview" id="bagOverview"></div>
+      <div class="bag-total" id="bagTotal"></div>
+    </div>
+
+    <!-- Add/Subtract -->
+    <div class="section">
+      <div class="section-title">Add / Remove Cubes</div>
+      <div class="param-row">
+        <div class="param-label">🟥 Working Class</div>
+        <div class="stepper" data-bag="wc" data-min="-25" data-max="25" data-val="0">
+          <button class="dec">−</button>
+          <div class="stepper-val">0</div>
+          <button class="inc">+</button>
+        </div>
+      </div>
+      <div class="param-row">
+        <div class="param-label">🟨 Middle Class</div>
+        <div class="stepper" data-bag="mc" data-min="-25" data-max="25" data-val="0">
+          <button class="dec">−</button>
+          <div class="stepper-val">0</div>
+          <button class="inc">+</button>
+        </div>
+      </div>
+      <div class="param-row">
+        <div class="param-label">🟦 Capitalist</div>
+        <div class="stepper" data-bag="cap" data-min="-25" data-max="25" data-val="0">
+          <button class="dec">−</button>
+          <div class="stepper-val">0</div>
+          <button class="inc">+</button>
+        </div>
+      </div>
+      <button class="modal-btn primary" id="applyBagBtn" style="margin-top:8px">Apply Changes</button>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="vote-actions">
+      <button class="vote-action-btn" id="btnFakeNews">📰 Fake News</button>
+      <button class="vote-action-btn" id="btnInterestGroups">🏛️ Interest Groups</button>
+      <button class="vote-action-btn" id="btnPolling">📊 Opinion Polling</button>
+      <button class="vote-action-btn" id="btnCallVote">🗳️ Call a Vote</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<script>
+// ===========================
+// SHARED STATE
+// ===========================
+const taxState = {
+  policy2: 'B', policy3: 'A', policy4: 'B', policy5: 'C',
+  wcPop: 3, mcCompanies: 2, mcOps: 2, capOps: 3, capRevenue: 120
+};
+
+const bag = { wc: 8, mc: 8, cap: 8 };
+const CUBE_MAX = 25;
+const EMOJI = { wc: '🟥', mc: '🟨', cap: '🟦', inf: '🟪' };
+const PLAYER_NAMES = { wc: 'Working Class', mc: 'Middle Class', cap: 'Capitalist', state: 'State' };
+
+function bagSupply(role) { return CUBE_MAX - bag[role]; }
+function bagTotal() { return bag.wc + bag.mc + bag.cap; }
+
+// ===========================
+// TAB SWITCHING
+// ===========================
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + btn.dataset.screen).classList.add('active');
+    if (btn.dataset.screen === 'vote') renderBagOverview();
+  });
+});
+
+// ===========================
+// TAX CALCULATOR (preserved from baseline)
+// ===========================
+const baseTaxMap = { A: 3, B: 2, C: 1 };
+const nMap = { A: 2, B: 1, C: 0 };
+const welfareMap = { A: 2, B: 1, C: 0 };
+
+function calcTaxMultiplier() {
+  const base = baseTaxMap[taxState.policy3];
+  const n = nMap[taxState.policy3];
+  return base + n * welfareMap[taxState.policy4] + n * welfareMap[taxState.policy5];
+}
+
+function updateTaxMultiplierDisplay() {
+  const el = document.getElementById('taxMultiplierDisplay');
+  el.textContent = calcTaxMultiplier();
+  el.classList.remove('flash');
+  el.offsetHeight;
+  el.classList.add('flash');
+  setTimeout(() => el.classList.remove('flash'), 300);
+}
+
+const incomeTaxTable = {
+  A: { A: 7, B: 6, C: 5 },
+  B: { A: 4, B: 4, C: 4 },
+  C: { A: 1, B: 2, C: 3 }
+};
+
+function getCorporateTax(revenue, policy3) {
+  if (revenue < 5) return 0;
+  const brackets = [
+    { min:5, max:9, A:1, B:2, C:2 }, { min:10, max:24, A:5, B:5, C:4 },
+    { min:25, max:49, A:12, B:10, C:7 }, { min:50, max:99, A:24, B:15, C:10 },
+    { min:100, max:199, A:40, B:30, C:20 }, { min:200, max:299, A:100, B:70, C:40 },
+    { min:300, max:Infinity, A:160, B:120, C:60 }
+  ];
+  const b = brackets.find(b => revenue >= b.min && revenue <= b.max);
+  return b ? b[policy3] : 0;
+}
+
+// Segmented controls
+document.querySelectorAll('.seg-control').forEach(ctrl => {
+  const param = ctrl.dataset.param;
+  ctrl.querySelectorAll('.seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      ctrl.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      taxState[param] = btn.dataset.val;
+      if (['policy3','policy4','policy5'].includes(param)) updateTaxMultiplierDisplay();
+    });
+  });
+});
+
+// Steppers (tax screen)
+document.querySelectorAll('.stepper[data-param]').forEach(stepper => {
+  const param = stepper.dataset.param;
+  const min = parseInt(stepper.dataset.min);
+  const max = parseInt(stepper.dataset.max);
+  const valEl = stepper.querySelector('.stepper-val');
+  const decBtn = stepper.querySelector('.dec');
+  const incBtn = stepper.querySelector('.inc');
+  function update() {
+    valEl.textContent = taxState[param];
+    decBtn.disabled = taxState[param] <= min;
+    incBtn.disabled = taxState[param] >= max;
+  }
+  decBtn.addEventListener('click', () => { if (taxState[param] > min) { taxState[param]--; update(); } });
+  incBtn.addEventListener('click', () => { if (taxState[param] < max) { taxState[param]++; update(); } });
+  let interval;
+  [decBtn, incBtn].forEach(btn => {
+    btn.addEventListener('touchstart', e => { e.preventDefault(); btn.click(); interval = setInterval(() => btn.click(), 120); });
+    btn.addEventListener('touchend', () => clearInterval(interval));
+    btn.addEventListener('touchcancel', () => clearInterval(interval));
+  });
+  update();
+});
+
+document.getElementById('capRevenue').addEventListener('input', e => {
+  let v = parseInt(e.target.value) || 0;
+  if (v < 0) v = 0;
+  taxState.capRevenue = v;
+});
+
+document.getElementById('calcBtn').addEventListener('click', () => {
+  const { policy2, policy3, wcPop, mcCompanies, mcOps, capOps, capRevenue } = taxState;
+  const taxMultiplier = calcTaxMultiplier();
+  const wcRate = incomeTaxTable[policy2][policy3];
+  const wcTax = wcRate * wcPop;
+  const mcEmploymentTax = mcOps * taxMultiplier;
+  const mcIncomeRate = incomeTaxTable[policy2][policy3];
+  const mcIncomeTax = mcIncomeRate * mcCompanies;
+  const mcTotalTax = mcEmploymentTax + mcIncomeTax;
+  const capEmploymentTax = capOps * taxMultiplier;
+  const revenueAfterEmployment = capRevenue - capEmploymentTax;
+  const corpTax = getCorporateTax(Math.max(0, revenueAfterEmployment), policy3);
+  const capTotalTax = capEmploymentTax + corpTax;
+
+  const results = document.getElementById('results');
+  results.classList.add('visible');
+  document.querySelectorAll('.result-card').forEach(c => {
+    c.classList.remove('animate'); c.offsetHeight;
+    c.style.opacity = '0'; c.style.transform = 'translateY(12px)';
+  });
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.result-card').forEach(c => c.classList.add('animate'));
+  });
+
+  document.getElementById('resWC').innerHTML = `
+    <div class="result-header"><div class="result-name">Working Class</div><div class="result-total">§${wcTax}</div></div>
+    <div class="result-breakdown">Tax per population: <span>${wcRate}</span> (2${policy2}+3${policy3})<br>× Population: <span>${wcPop}</span><br>= Total: <span>${wcRate} × ${wcPop} = ${wcTax}</span></div>`;
+
+  document.getElementById('resMC').innerHTML = `
+    <div class="result-header"><div class="result-name">Middle Class</div><div class="result-total">§${mcTotalTax}</div></div>
+    <div class="result-breakdown">Employment Tax: <span>${mcOps}</span> co. × <span>${taxMultiplier}</span> = <span>${mcEmploymentTax}</span><br>Income Tax per co.: <span>${mcIncomeRate}</span> (2${policy2}+3${policy3})<br>× MC Worker co.: <span>${mcCompanies}</span> = <span>${mcIncomeTax}</span><br>= Total: <span>${mcEmploymentTax} + ${mcIncomeTax} = ${mcTotalTax}</span></div>`;
+
+  const revNote = revenueAfterEmployment < 0
+    ? `Revenue after Emp. Tax: <span>${capRevenue} − ${capEmploymentTax} = ${revenueAfterEmployment}</span> (treated as 0)`
+    : `Revenue after Emp. Tax: <span>${capRevenue} − ${capEmploymentTax} = ${revenueAfterEmployment}</span>`;
+  document.getElementById('resCap').innerHTML = `
+    <div class="result-header"><div class="result-name">Capitalist</div><div class="result-total">§${capTotalTax}</div></div>
+    <div class="result-breakdown">Employment Tax: <span>${capOps}</span> co. × <span>${taxMultiplier}</span> = <span>${capEmploymentTax}</span><br>${revNote}<br>Corporate Tax (3${policy3}): <span>${corpTax}</span><br>= Total: <span>${capEmploymentTax} + ${corpTax} = ${capTotalTax}</span></div>`;
+});
+
+// ===========================
+// VOTING BAG
+// ===========================
+
+function renderBagOverview() {
+  const ov = document.getElementById('bagOverview');
+  ov.innerHTML = ['wc','mc','cap'].map(r => `
+    <div class="bag-player">
+      <div class="emoji">${EMOJI[r]}</div>
+      <div class="bag-count">${bag[r]}</div>
+      <div class="bag-sub">supply: ${bagSupply(r)}</div>
+    </div>
+  `).join('');
+  document.getElementById('bagTotal').textContent = `Total in bag: ${bagTotal()}`;
+}
+
+// Bag add/subtract steppers
+const bagDelta = { wc: 0, mc: 0, cap: 0 };
+
+document.querySelectorAll('.stepper[data-bag]').forEach(stepper => {
+  const role = stepper.dataset.bag;
+  const valEl = stepper.querySelector('.stepper-val');
+  const decBtn = stepper.querySelector('.dec');
+  const incBtn = stepper.querySelector('.inc');
+
+  function update() {
+    valEl.textContent = (bagDelta[role] > 0 ? '+' : '') + bagDelta[role];
+    decBtn.disabled = (bag[role] + bagDelta[role]) <= 0;
+    incBtn.disabled = (bag[role] + bagDelta[role]) >= CUBE_MAX;
+  }
+
+  decBtn.addEventListener('click', () => {
+    if (bag[role] + bagDelta[role] > 0) { bagDelta[role]--; update(); }
+  });
+  incBtn.addEventListener('click', () => {
+    if (bag[role] + bagDelta[role] < CUBE_MAX) { bagDelta[role]++; update(); }
+  });
+
+  let interval;
+  [decBtn, incBtn].forEach(btn => {
+    btn.addEventListener('touchstart', e => { e.preventDefault(); btn.click(); interval = setInterval(() => btn.click(), 120); });
+    btn.addEventListener('touchend', () => clearInterval(interval));
+    btn.addEventListener('touchcancel', () => clearInterval(interval));
+  });
+
+  update();
+  // Store update fn so we can refresh after apply
+  stepper._update = update;
+});
+
+document.getElementById('applyBagBtn').addEventListener('click', () => {
+  ['wc','mc','cap'].forEach(r => {
+    bag[r] = Math.max(0, Math.min(CUBE_MAX, bag[r] + bagDelta[r]));
+    bagDelta[r] = 0;
+  });
+  // Reset stepper displays
+  document.querySelectorAll('.stepper[data-bag]').forEach(s => {
+    s.querySelector('.stepper-val').textContent = '0';
+    if (s._update) s._update();
+  });
+  renderBagOverview();
+});
+
+// ===========================
+// DRAW CUBES HELPER (draws what's available)
+// ===========================
+function drawFromBag(count) {
+  const pool = [];
+  for (let i = 0; i < bag.wc; i++) pool.push('wc');
+  for (let i = 0; i < bag.mc; i++) pool.push('mc');
+  for (let i = 0; i < bag.cap; i++) pool.push('cap');
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  const drawn = pool.slice(0, Math.min(count, pool.length));
+  drawn.forEach(r => bag[r]--);
+  return drawn;
+}
+
+function cubeEmojis(arr) {
+  return arr.map(r => EMOJI[r]).join(' ');
+}
+
+// ===========================
+// REFILL MODAL (reusable)
+// Shows add-cubes UI inside a modal, calls onDone when confirmed
+// ===========================
+function showRefillModal(title, message, drawnSoFar, onDone) {
+  const refillDelta = { wc: 0, mc: 0, cap: 0 };
+
+  function renderRefill() {
+    const rows = ['wc','mc','cap'].map(r => {
+      const canDec = refillDelta[r] > 0;
+      const canInc = (bag[r] + refillDelta[r]) < CUBE_MAX;
+      return `
+        <div class="param-row">
+          <div class="param-label">${EMOJI[r]} ${PLAYER_NAMES[r]} <span style="font-size:10px;color:var(--text-dim)">(bag: ${bag[r]+refillDelta[r]}, supply: ${CUBE_MAX - bag[r] - refillDelta[r]})</span></div>
+          <div class="stepper">
+            <button class="dec" data-role="${r}" ${canDec?'':'disabled'} style="width:34px;height:34px;border:none;background:transparent;color:var(--text-dim);font-size:18px;font-weight:600;border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
+            <div style="font-family:'JetBrains Mono';font-size:14px;font-weight:600;min-width:36px;text-align:center;color:var(--text)">${refillDelta[r] > 0 ? '+' : ''}${refillDelta[r]}</div>
+            <button class="inc" data-role="${r}" ${canInc?'':'disabled'} style="width:34px;height:34px;border:none;background:transparent;color:var(--text-dim);font-size:18px;font-weight:600;border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+          </div>
+        </div>`;
+    }).join('');
+
+    const drawnLabel = drawnSoFar.length > 0
+      ? `<div style="font-size:11px;color:var(--text-dim);text-align:center;margin-bottom:4px">Drawn so far:</div><div class="drawn-cubes">${cubeEmojis(drawnSoFar)}</div>`
+      : '';
+
+    const totalAdding = refillDelta.wc + refillDelta.mc + refillDelta.cap;
+
+    showModal(`
+      <div class="modal-title">${title}</div>
+      <div style="font-size:12px;color:var(--accent-mc);text-align:center;margin-bottom:12px;font-weight:600">${message}</div>
+      ${drawnLabel}
+      <div class="section" style="margin-bottom:12px">
+        <div class="section-title">Add Cubes to Bag</div>
+        ${rows}
+      </div>
+      <button class="modal-btn primary" id="refillConfirm" ${totalAdding === 0 ? 'disabled style="opacity:0.4"' : ''}>Confirm (adding ${totalAdding})</button>
+    `);
+
+    document.querySelectorAll('#modalContent .dec').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const r = btn.dataset.role;
+        if (refillDelta[r] > 0) { refillDelta[r]--; renderRefill(); }
+      });
+    });
+    document.querySelectorAll('#modalContent .inc').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const r = btn.dataset.role;
+        if ((bag[r] + refillDelta[r]) < CUBE_MAX) { refillDelta[r]++; renderRefill(); }
+      });
+    });
+
+    const confirmBtn = document.getElementById('refillConfirm');
+    if (confirmBtn && totalAdding > 0) {
+      confirmBtn.addEventListener('click', () => {
+        ['wc','mc','cap'].forEach(r => bag[r] += refillDelta[r]);
+        renderBagOverview();
+        onDone();
+      });
+    }
+  }
+
+  renderRefill();
+}
+
+// ===========================
+// MODAL HELPERS
+// ===========================
+function showModal(html) {
+  document.getElementById('modalContent').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+  renderBagOverview();
+}
+
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+});
+
+// ===========================
+// 1. FAKE NEWS (with refill support)
+// ===========================
+document.getElementById('btnFakeNews').addEventListener('click', () => {
+  fakeNewsDraw([]);
+});
+
+function fakeNewsDraw(drawnSoFar) {
+  const need = 6 - drawnSoFar.length;
+  if (need <= 0) { fakeNewsSelect(drawnSoFar); return; }
+
+  if (bagTotal() === 0 && drawnSoFar.length === 0) {
+    // Bag empty at start — offer refill
+    showRefillModal('📰 Fake News', 'The Voting Bag is empty! Add cubes to continue.', drawnSoFar, () => fakeNewsDraw(drawnSoFar));
+    return;
+  }
+
+  if (bagTotal() === 0 && drawnSoFar.length > 0) {
+    // Bag emptied mid-draw — offer refill
+    showRefillModal('📰 Fake News', `Bag empty after drawing ${drawnSoFar.length}/6. Add cubes to draw the rest.`, drawnSoFar, () => fakeNewsDraw(drawnSoFar));
+    return;
+  }
+
+  // Draw what we can
+  const batch = drawFromBag(need);
+  const allDrawn = drawnSoFar.concat(batch);
+
+  if (allDrawn.length < 6 && bagTotal() === 0) {
+    // Still need more — refill
+    showRefillModal('📰 Fake News', `Bag empty after drawing ${allDrawn.length}/6. Add cubes to draw the rest.`, allDrawn, () => fakeNewsDraw(allDrawn));
+    return;
+  }
+
+  fakeNewsSelect(allDrawn);
+}
+
+function fakeNewsSelect(drawn) {
+  let selected = new Set();
+
+  function render() {
+    const cubeHTML = drawn.map((r, i) => {
+      const sel = selected.has(i) ? 'selected' : '';
+      return `<div class="cube-checkbox ${sel}" data-idx="${i}"><span class="cube-emoji">${EMOJI[r]}</span><span class="cube-idx">${PLAYER_NAMES[r]}</span></div>`;
+    }).join('');
+
+    showModal(`
+      <div class="modal-title">📰 Fake News</div>
+      <div style="font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:12px">
+        Drew ${drawn.length} cube${drawn.length!==1?'s':''} — select up to 4 to remove
+      </div>
+      <div id="fnCubes">${cubeHTML}</div>
+      <div style="text-align:center;margin:10px 0;font-family:'JetBrains Mono';font-size:11px;color:var(--text-dim)">
+        Selected: ${selected.size}/4
+      </div>
+      <button class="modal-btn primary" id="fnConfirm">Confirm Removal</button>
+      <button class="modal-btn secondary" onclick="closeModal()">Cancel & Return All</button>
+    `);
+
+    document.querySelectorAll('#fnCubes .cube-checkbox').forEach(el => {
+      el.addEventListener('click', () => {
+        const idx = parseInt(el.dataset.idx);
+        if (selected.has(idx)) selected.delete(idx);
+        else if (selected.size < 4) selected.add(idx);
+        render();
+      });
+    });
+
+    document.getElementById('fnConfirm').addEventListener('click', () => {
+      drawn.forEach((r, i) => { if (!selected.has(i)) bag[r]++; });
+      const removed = {};
+      selected.forEach(i => { removed[drawn[i]] = (removed[drawn[i]] || 0) + 1; });
+      const summary = Object.entries(removed).map(([r,c]) => `${EMOJI[r]}×${c}`).join(' ');
+      showModal(`
+        <div class="modal-title">📰 Fake News — Done</div>
+        <div style="text-align:center;margin-bottom:12px;font-size:13px">Removed: ${summary || 'none'}</div>
+        <div style="text-align:center;margin-bottom:12px;font-size:12px;color:var(--text-dim)">Returned to supply. Remaining cubes back in bag.</div>
+        <button class="modal-btn primary" onclick="closeModal()">Done</button>
+      `);
+    });
+  }
+
+  render();
+}
+
+// ===========================
+// 2. INTEREST GROUPS (with refill support)
+// ===========================
+document.getElementById('btnInterestGroups').addEventListener('click', () => {
+  showModal(`
+    <div class="modal-title">🏛️ Interest Groups</div>
+    <div style="font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:14px">Which player is playing this card?</div>
+    <button class="modal-btn secondary" onclick="runInterestGroups('wc')">🟥 Working Class</button>
+    <button class="modal-btn secondary" onclick="runInterestGroups('mc')">🟨 Middle Class</button>
+    <button class="modal-btn secondary" onclick="runInterestGroups('cap')">🟦 Capitalist</button>
+    <button class="modal-btn secondary" style="margin-top:4px" onclick="closeModal()">Cancel</button>
+  `);
+});
+
+window.runInterestGroups = function(player) {
+  if (bagSupply(player) < 3) {
+    showModal(`
+      <div class="modal-title">🏛️ Interest Groups</div>
+      <div class="error-msg">${EMOJI[player]} ${PLAYER_NAMES[player]} doesn't have enough cubes in supply! Need 3, but only ${bagSupply(player)} available.</div>
+      <button class="modal-btn secondary" onclick="closeModal()">Close</button>
+    `);
+    return;
+  }
+  interestGroupsDraw(player, [], 0);
+};
+
+function interestGroupsDraw(player, drawnSoFar, nonPlayerFound) {
+  if (nonPlayerFound >= 3) {
+    interestGroupsFinish(player, drawnSoFar);
+    return;
+  }
+
+  if (bagTotal() === 0) {
+    showRefillModal('🏛️ Interest Groups',
+      `Bag empty! Found ${nonPlayerFound}/3 non-${EMOJI[player]} cubes so far. Add cubes to continue drawing.`,
+      drawnSoFar,
+      () => interestGroupsDraw(player, drawnSoFar, nonPlayerFound));
+    return;
+  }
+
+  // Draw one at a time to track non-player cubes properly
+  const batch = drawFromBag(bagTotal()); // draw everything remaining
+  let newDrawn = [...drawnSoFar];
+  let npFound = nonPlayerFound;
+
+  for (const cube of batch) {
+    newDrawn.push(cube);
+    if (cube !== player) {
+      npFound++;
+      if (npFound >= 3) break;
+    }
+  }
+
+  // Return un-needed cubes back to bag (ones drawn after we found 3)
+  const usedCount = newDrawn.length - drawnSoFar.length;
+  for (let i = usedCount; i < batch.length; i++) {
+    bag[batch[i]]++;
+  }
+
+  if (npFound < 3 && bagTotal() === 0) {
+    showRefillModal('🏛️ Interest Groups',
+      `Bag empty! Found ${npFound}/3 non-${EMOJI[player]} cubes so far. Add cubes to continue drawing.`,
+      newDrawn,
+      () => interestGroupsDraw(player, newDrawn, npFound));
+    return;
+  }
+
+  interestGroupsFinish(player, newDrawn);
+}
+
+function interestGroupsFinish(player, drawn) {
+  const origDrawn = [...drawn];
+  const repCubes = [];
+  for (let i = 0; i < origDrawn.length; i++) {
+    if (origDrawn[i] !== player) repCubes.push(origDrawn[i]);
+  }
+
+  // Build return list: swap non-player cubes for player cubes
+  const repSet = [...repCubes];
+  const returnList = origDrawn.map(r => {
+    const idx = repSet.indexOf(r);
+    if (idx >= 0 && r !== player) {
+      repSet.splice(idx, 1);
+      return player;
+    }
+    return r;
+  });
+
+  returnList.forEach(r => bag[r]++);
+
+  const drawnDisplay = origDrawn.map(r => EMOJI[r]).join(' ');
+  const replacedDisplay = repCubes.map(r => EMOJI[r]).join(' ') + ' → ' + Array(repCubes.length).fill(EMOJI[player]).join(' ');
+
+  showModal(`
+    <div class="modal-title">🏛️ Interest Groups</div>
+    <div style="font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:8px">
+      Drew ${origDrawn.length} cube${origDrawn.length!==1?'s':''} to find 3 non-${EMOJI[player]}
+    </div>
+    <div class="drawn-cubes">${drawnDisplay}</div>
+    <div style="font-size:12px;text-align:center;margin-bottom:8px">
+      Replaced: ${replacedDisplay}
+    </div>
+    <div style="font-size:11px;color:var(--text-dim);text-align:center;margin-bottom:14px">
+      Replaced cubes returned to owners' supply.<br>All cubes (with swaps) returned to bag.
+    </div>
+    <button class="modal-btn primary" onclick="closeModal()">Done</button>
+  `);
+}
+
+// ===========================
+// 3. PUBLIC OPINION POLLING (with refill support)
+// ===========================
+document.getElementById('btnPolling').addEventListener('click', () => {
+  showModal(`
+    <div class="modal-title">📊 Public Opinion Polling</div>
+    <div style="font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:14px">Which player is playing this card?</div>
+    <button class="modal-btn secondary" onclick="runPolling('wc')">🟥 Working Class</button>
+    <button class="modal-btn secondary" onclick="runPolling('mc')">🟨 Middle Class</button>
+    <button class="modal-btn secondary" onclick="runPolling('cap')">🟦 Capitalist</button>
+    <button class="modal-btn secondary" style="margin-top:4px" onclick="closeModal()">Cancel</button>
+  `);
+});
+
+window.runPolling = function(player) {
+  pollingDraw(player, []);
+};
+
+function pollingDraw(player, drawnSoFar) {
+  const need = 5 - drawnSoFar.length;
+  if (need <= 0) { pollingShow(player, drawnSoFar); return; }
+
+  if (bagTotal() === 0) {
+    showRefillModal('📊 Public Opinion Polling',
+      drawnSoFar.length === 0
+        ? 'The Voting Bag is empty! Add cubes to draw.'
+        : `Bag empty after drawing ${drawnSoFar.length}/5. Add cubes to draw the rest.`,
+      drawnSoFar,
+      () => pollingDraw(player, drawnSoFar));
+    return;
+  }
+
+  const batch = drawFromBag(need);
+  const allDrawn = drawnSoFar.concat(batch);
+
+  if (allDrawn.length < 5 && bagTotal() === 0) {
+    showRefillModal('📊 Public Opinion Polling',
+      `Bag empty after drawing ${allDrawn.length}/5. Add cubes to draw the rest.`,
+      allDrawn,
+      () => pollingDraw(player, allDrawn));
+    return;
+  }
+
+  pollingShow(player, allDrawn);
+}
+
+function pollingShow(player, drawn) {
+  showModal(`
+    <div class="modal-title">📊 Public Opinion Polling</div>
+    <div style="font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:8px">Drew 5 cubes:</div>
+    <div class="drawn-cubes">${cubeEmojis(drawn)}</div>
+    <div style="font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:14px">Does ${EMOJI[player]} ${PLAYER_NAMES[player]} want to call a vote?</div>
+    <button class="modal-btn primary" id="pollingYes">Yes — Call a Vote</button>
+    <button class="modal-btn secondary" id="pollingNo">No — Return Cubes</button>
+  `);
+
+  document.getElementById('pollingNo').addEventListener('click', () => {
+    drawn.forEach(r => bag[r]++);
+    showModal(`
+      <div class="modal-title">📊 Public Opinion Polling</div>
+      <div style="font-size:12px;text-align:center;margin-bottom:14px;color:var(--text-dim)">All cubes returned to the bag.</div>
+      <button class="modal-btn primary" onclick="closeModal()">Done</button>
+    `);
+  });
+
+  document.getElementById('pollingYes').addEventListener('click', () => {
+    startVote(player, drawn);
+  });
+}
+
+// ===========================
+// 4. CALL A VOTE (with refill support)
+// ===========================
+document.getElementById('btnCallVote').addEventListener('click', () => {
+  showModal(`
+    <div class="modal-title">🗳️ Call a Vote</div>
+    <div style="font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:14px">Who is proposing the bill?</div>
+    <button class="modal-btn secondary" onclick="startVoteFlow('wc')">🟥 Working Class</button>
+    <button class="modal-btn secondary" onclick="startVoteFlow('mc')">🟨 Middle Class</button>
+    <button class="modal-btn secondary" onclick="startVoteFlow('cap')">🟦 Capitalist</button>
+    <button class="modal-btn secondary" style="margin-top:4px" onclick="closeModal()">Cancel</button>
+  `);
+});
+
+window.startVoteFlow = function(proposer) {
+  collectStancesThenDraw(proposer);
+};
+
+// ===========================
+// VOTE FLOW — STANCES FIRST (Call a Vote)
+// ===========================
+function collectStancesThenDraw(proposer) {
+  const stances = { wc: 'against', mc: 'against', cap: 'against', state: 'against' };
+  stances[proposer] = 'for';
+
+  function renderStances() {
+    const players = ['wc', 'mc', 'cap', 'state'];
+    const stanceHTML = players.map(p => {
+      const emoji = p === 'state' ? '⚖️' : EMOJI[p];
+      const isProposer = p === proposer;
+      return `
+        <div class="vote-stance-row">
+          <div class="vote-stance-label">${emoji} ${PLAYER_NAMES[p]}</div>
+          <div class="stance-toggle">
+            <button class="stance-btn ${stances[p]==='for'?'active-for':''}"
+              ${isProposer?'disabled':''} data-player="${p}" data-stance="for">For</button>
+            <button class="stance-btn ${stances[p]==='against'?'active-against':''}"
+              ${isProposer?'disabled':''} data-player="${p}" data-stance="against">Against</button>
+          </div>
+        </div>`;
+    }).join('');
+
+    showModal(`
+      <div class="modal-title">🗳️ Vote — Stances</div>
+      <div style="font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:12px">
+        ${EMOJI[proposer]} ${PLAYER_NAMES[proposer]} proposes. Select stances before drawing.
+      </div>
+      <div id="stanceList">${stanceHTML}</div>
+      <button class="modal-btn primary" id="stanceDone" style="margin-top:14px">Draw Cubes</button>
+      <button class="modal-btn secondary" id="stanceCancel">Cancel Vote</button>
+    `);
+
+    document.querySelectorAll('.stance-btn:not([disabled])').forEach(btn => {
+      btn.addEventListener('click', () => {
+        stances[btn.dataset.player] = btn.dataset.stance;
+        renderStances();
+      });
+    });
+
+    document.getElementById('stanceCancel').addEventListener('click', () => closeModal());
+
+    document.getElementById('stanceDone').addEventListener('click', () => {
+      voteDraw(proposer, stances, []);
+    });
+  }
+
+  renderStances();
+}
+
+function voteDraw(proposer, stances, drawnSoFar) {
+  const need = 5 - drawnSoFar.length;
+  if (need <= 0) { showDrawThenInfluence(proposer, drawnSoFar, stances); return; }
+
+  if (bagTotal() === 0) {
+    showRefillModal('🗳️ Call a Vote',
+      drawnSoFar.length === 0
+        ? 'The Voting Bag is empty! Add cubes to draw.'
+        : `Bag empty after drawing ${drawnSoFar.length}/5. Add cubes to draw the rest.`,
+      drawnSoFar,
+      () => voteDraw(proposer, stances, drawnSoFar));
+    return;
+  }
+
+  const batch = drawFromBag(need);
+  const allDrawn = drawnSoFar.concat(batch);
+
+  if (allDrawn.length < 5 && bagTotal() === 0) {
+    showRefillModal('🗳️ Call a Vote',
+      `Bag empty after drawing ${allDrawn.length}/5. Add cubes to draw the rest.`,
+      allDrawn,
+      () => voteDraw(proposer, stances, allDrawn));
+    return;
+  }
+
+  showDrawThenInfluence(proposer, allDrawn, stances);
+}
+
+function showDrawThenInfluence(proposer, drawn, stances) {
+  showModal(`
+    <div class="modal-title">🗳️ Cubes Drawn</div>
+    <div class="drawn-cubes">${cubeEmojis(drawn)}</div>
+    <div style="font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:14px">${drawn.length} cubes drawn from the bag</div>
+    <button class="modal-btn primary" id="toInfluence">Next — Influence Cubes</button>
+  `);
+  document.getElementById('toInfluence').addEventListener('click', () => {
+    collectInfluence(proposer, drawn, stances);
+  });
+}
+
+// ===========================
+// VOTE FLOW — DRAWN FIRST (Opinion Polling)
+// ===========================
+function startVote(proposer, drawn) {
+  const stances = { wc: 'against', mc: 'against', cap: 'against', state: 'against' };
+  stances[proposer] = 'for';
+
+  function renderStances() {
+    const players = ['wc', 'mc', 'cap', 'state'];
+    const stanceHTML = players.map(p => {
+      const emoji = p === 'state' ? '⚖️' : EMOJI[p];
+      const isProposer = p === proposer;
+      return `
+        <div class="vote-stance-row">
+          <div class="vote-stance-label">${emoji} ${PLAYER_NAMES[p]}</div>
+          <div class="stance-toggle">
+            <button class="stance-btn ${stances[p]==='for'?'active-for':''}"
+              ${isProposer?'disabled':''} data-player="${p}" data-stance="for">For</button>
+            <button class="stance-btn ${stances[p]==='against'?'active-against':''}"
+              ${isProposer?'disabled':''} data-player="${p}" data-stance="against">Against</button>
+          </div>
+        </div>`;
+    }).join('');
+
+    showModal(`
+      <div class="modal-title">🗳️ Vote — Stances</div>
+      <div style="font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:8px">
+        ${EMOJI[proposer]} ${PLAYER_NAMES[proposer]} proposes. Cubes already drawn:
+      </div>
+      <div class="drawn-cubes">${cubeEmojis(drawn)}</div>
+      <div id="stanceList">${stanceHTML}</div>
+      <button class="modal-btn primary" id="stanceDone" style="margin-top:14px">Next — Influence Cubes</button>
+      <button class="modal-btn secondary" id="stanceCancel">Cancel Vote</button>
+    `);
+
+    document.querySelectorAll('.stance-btn:not([disabled])').forEach(btn => {
+      btn.addEventListener('click', () => {
+        stances[btn.dataset.player] = btn.dataset.stance;
+        renderStances();
+      });
+    });
+
+    document.getElementById('stanceCancel').addEventListener('click', () => {
+      drawn.forEach(r => bag[r]++);
+      showModal(`
+        <div class="modal-title">🗳️ Vote Cancelled</div>
+        <div style="font-size:12px;text-align:center;margin-bottom:14px;color:var(--text-dim)">All cubes returned to the bag.</div>
+        <button class="modal-btn primary" onclick="closeModal()">Done</button>
+      `);
+    });
+
+    document.getElementById('stanceDone').addEventListener('click', () => {
+      collectInfluence(proposer, drawn, stances);
+    });
+  }
+
+  renderStances();
+}
+
+// ===========================
+// INFLUENCE CUBE COLLECTION
+// ===========================
+function collectInfluence(proposer, drawn, stances) {
+  const influence = { wc: 0, mc: 0, cap: 0, state: 0 };
+  const players = ['wc', 'mc', 'cap', 'state'];
+  let currentIdx = 0;
+
+  function showInfluencePrompt() {
+    const p = players[currentIdx];
+    const emoji = p === 'state' ? '⚖️' : EMOJI[p];
+    const stance = stances[p] === 'for' ? '✅ FOR' : '❌ AGAINST';
+
+    showModal(`
+      <div class="modal-title">🟪 Influence Cubes</div>
+      <div class="influence-section">
+        <div class="pass-note">Pass the device to:</div>
+        <div class="player-turn">${emoji} ${PLAYER_NAMES[p]} <span style="font-size:11px;color:var(--text-dim)">(${stance})</span></div>
+        <div class="influence-emoji">🟪</div>
+        <div style="margin-bottom:14px;font-size:12px;color:var(--text-dim)">How many Influence Cubes to add?</div>
+        <input type="number" class="influence-input" id="infInput" value="0" min="0" inputmode="numeric" autocomplete="off">
+      </div>
+      <button class="modal-btn primary" id="infNext">${currentIdx < players.length - 1 ? 'Next Player' : 'Reveal Results'}</button>
+    `);
+
+    document.getElementById('infInput').focus();
+    document.getElementById('infInput').select();
+
+    document.getElementById('infNext').addEventListener('click', () => {
+      influence[p] = Math.max(0, parseInt(document.getElementById('infInput').value) || 0);
+      currentIdx++;
+      if (currentIdx < players.length) showInfluencePrompt();
+      else resolveVote(proposer, drawn, stances, influence);
+    });
+  }
+
+  showInfluencePrompt();
+}
+
+// ===========================
+// RESOLVE VOTE
+// ===========================
+function resolveVote(proposer, drawn, stances, influence) {
+  const drawnCount = { wc: 0, mc: 0, cap: 0 };
+  drawn.forEach(r => drawnCount[r]++);
+
+  let forVotes = 0, againstVotes = 0;
+  const players = ['wc', 'mc', 'cap', 'state'];
+  const tallyLines = [];
+
+  players.forEach(p => {
+    const cubes = p === 'state' ? 0 : drawnCount[p];
+    const inf = influence[p];
+    const total = cubes + inf;
+    const side = stances[p];
+    if (side === 'for') forVotes += total;
+    else againstVotes += total;
+
+    const emoji = p === 'state' ? '⚖️' : EMOJI[p];
+    let detail = '';
+    if (p !== 'state' && cubes > 0 && inf > 0) detail = `(${cubes} drawn + ${inf} 🟪)`;
+    else if (p !== 'state' && cubes > 0) detail = `(${cubes} drawn)`;
+    else if (inf > 0) detail = `(${inf} 🟪)`;
+    else detail = '(0)';
+    tallyLines.push(`${emoji} ${PLAYER_NAMES[p]}: <span>${total}</span> ${side === 'for' ? '✅' : '❌'} ${detail}`);
+  });
+
+  const passed = forVotes >= againstVotes;
+
+  const movements = [];
+  ['wc', 'mc', 'cap'].forEach(r => {
+    const count = drawnCount[r];
+    if (count === 0) return;
+    const side = stances[r];
+    if (passed) {
+      if (side === 'for') {
+        movements.push(`${EMOJI[r]}×${count} → supply (supported, bill passed)`);
+      } else {
+        bag[r] += count;
+        movements.push(`${EMOJI[r]}×${count} → bag (opposed, bill passed)`);
+      }
+    } else {
+      if (side === 'against') {
+        movements.push(`${EMOJI[r]}×${count} → supply (opposed, bill failed)`);
+      } else {
+        bag[r] += count;
+        movements.push(`${EMOJI[r]}×${count} → bag (supported, bill failed)`);
+      }
+    }
+  });
+
+  showModal(`
+    <div class="modal-title">🗳️ Vote Results</div>
+    <div class="vote-result-box ${passed ? 'passed' : 'failed'}">
+      <div class="result-label">${passed ? 'BILL PASSED' : 'BILL FAILED'}</div>
+    </div>
+    <div style="text-align:center;margin-bottom:10px;font-family:'JetBrains Mono';font-size:13px">
+      <span style="color:var(--green)">For: ${forVotes}</span> &nbsp;—&nbsp; <span style="color:var(--accent-wc)">Against: ${againstVotes}</span>
+      ${forVotes === againstVotes ? '<br><span style="font-size:11px;color:var(--text-dim)">(Tie — bill passes)</span>' : ''}
+    </div>
+    <div class="vote-tally">${tallyLines.join('<br>')}</div>
+    <div class="cube-movement">
+      <div style="font-weight:700;color:var(--text);margin-bottom:4px">Cube Movements:</div>
+      ${movements.length > 0 ? movements.join('<br>') : 'No cubes drawn for any player'}
+    </div>
+    <button class="modal-btn primary" onclick="closeModal()">Done</button>
+  `);
+}
+
+// Initial render
+renderBagOverview();
+</script>
+</body>
+</html>

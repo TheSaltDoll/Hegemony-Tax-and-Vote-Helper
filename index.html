@@ -1106,13 +1106,21 @@ function cubeEmojis(arr) {
 function showRefillModal(title, message, drawnSoFar, onDone) {
   const refillDelta = { wc: 0, mc: 0, cap: 0 };
 
+  // Count how many cubes each player has "in limbo" (drawn but not yet resolved)
+  const drawnOut = { wc: 0, mc: 0, cap: 0 };
+  drawnSoFar.forEach(r => drawnOut[r]++);
+
   function renderRefill() {
     const rows = ['wc','mc','cap'].map(r => {
+      // Effective supply = CUBE_MAX - in_bag - drawn_out - already_adding
+      const effectiveSupply = CUBE_MAX - bag[r] - drawnOut[r] - refillDelta[r];
       const canDec = refillDelta[r] > 0;
-      const canInc = (bag[r] + refillDelta[r]) < CUBE_MAX;
+      const canInc = effectiveSupply > 0;
+      const displayBag = bag[r] + refillDelta[r];
+      const displaySupply = CUBE_MAX - bag[r] - drawnOut[r] - refillDelta[r];
       return `
         <div class="param-row">
-          <div class="param-label">${EMOJI[r]} ${PLAYER_NAMES[r]} <span style="font-size:10px;color:var(--text-dim)">(bag: ${bag[r]+refillDelta[r]}, supply: ${CUBE_MAX - bag[r] - refillDelta[r]})</span></div>
+          <div class="param-label">${EMOJI[r]} ${PLAYER_NAMES[r]} <span style="font-size:10px;color:var(--text-dim)">(bag: ${displayBag}, supply: ${displaySupply}${drawnOut[r] > 0 ? ', drawn: '+drawnOut[r] : ''})</span></div>
           <div class="stepper">
             <button class="dec" data-role="${r}" ${canDec?'':'disabled'} style="width:34px;height:34px;border:none;background:transparent;color:var(--text-dim);font-size:18px;font-weight:600;border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
             <div style="font-family:'JetBrains Mono';font-size:14px;font-weight:600;min-width:36px;text-align:center;color:var(--text)">${refillDelta[r] > 0 ? '+' : ''}${refillDelta[r]}</div>
@@ -1147,7 +1155,8 @@ function showRefillModal(title, message, drawnSoFar, onDone) {
     document.querySelectorAll('#modalContent .inc').forEach(btn => {
       btn.addEventListener('click', () => {
         const r = btn.dataset.role;
-        if ((bag[r] + refillDelta[r]) < CUBE_MAX) { refillDelta[r]++; renderRefill(); }
+        const effectiveSupply = CUBE_MAX - bag[r] - drawnOut[r] - refillDelta[r];
+        if (effectiveSupply > 0) { refillDelta[r]++; renderRefill(); }
       });
     });
 

@@ -113,6 +113,11 @@
   .error-msg{background:rgba(240,80,80,0.1);border:1px solid rgba(240,80,80,0.3);color:var(--accent-wc);font-family:'JetBrains Mono',monospace;font-size:12px;padding:10px 14px;border-radius:8px;margin-bottom:12px;text-align:center}
   .refill-preview{background:var(--bg);border-radius:10px;padding:12px;margin-bottom:12px;font-family:'JetBrains Mono',monospace;font-size:12px;text-align:center;line-height:1.8}
   .refill-preview span{color:var(--text);font-weight:600}
+  .tally-box{background:var(--bg);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .tally-header{display:flex;justify-content:center;gap:24px;margin-bottom:8px;font-size:13px;font-weight:700}
+  .tally-for{color:var(--green)} .tally-against{color:var(--accent-wc)} .tally-neutral{color:var(--accent-mc)}
+  .tally-rows{line-height:1.7;color:var(--text-dim)}
+  .tally-rows span{font-weight:600;color:var(--text)}
 </style>
 </head>
 <body>
@@ -122,8 +127,8 @@
     <label>Players</label>
     <div class="seg-control" id="playerCountControl">
       <button class="seg-btn" data-val="2">2</button>
-      <button class="seg-btn active" data-val="3">3</button>
-      <button class="seg-btn" data-val="4">4</button>
+      <button class="seg-btn" data-val="3">3</button>
+      <button class="seg-btn active" data-val="4">4</button>
     </div>
   </div>
   <div class="tab-bar">
@@ -177,7 +182,7 @@
 
 <script>
 const taxState = { policy2:'B', policy3:'A', policy4:'B', policy5:'C', wcPop:3, mcPop:3, mcCompanies:2, mcOps:2, capOps:3, capRevenue:120 };
-let playerCount = 3;
+let playerCount = 4;
 function noMC(){ return playerCount === 2; }
 function hasState(){ return playerCount === 4; }
 const bag = { wc:8, mc:8, cap:8 };
@@ -427,8 +432,43 @@ function voteDraw(proposer,stances,so){
   showDrawThenInf(proposer,all,stances);
 }
 
+function buildTallyHTML(drawn, stances, influence, currentPlayer) {
+  // currentPlayer: if set, only show that player's influence (secret mode)
+  // if not set, show all influence (used for final results / initial draw with no influence)
+  const dc={wc:0,mc:0,cap:0}; drawn.forEach(r=>dc[r]++);
+  const inf = influence || {wc:0,mc:0,cap:0,state:0};
+  let forV=0, againstV=0;
+  const rows=[];
+  const vp=getVotePlayers();
+
+  vp.forEach(p=>{
+    const cubes=p==='state'?0:dc[p];
+    // Only count this player's influence if they are the currentPlayer or if no secret mode
+    const showInf = !currentPlayer || p === currentPlayer;
+    const iv = showInf ? (inf[p]||0) : 0;
+    const total=cubes+iv;
+    const side=stances[p];
+    if(side==='for')forV+=total; else againstV+=total;
+    const emoji=p==='state'?'⚖️':EMOJI[p];
+    const cubeIcons = p!=='state'&&cubes>0 ? emoji.repeat(cubes)+' ' : '';
+    let det;
+    if(p!=='state'&&cubes>0&&iv>0) det=`${cubes} drawn + ${iv} ${'🟪'.repeat(iv)}`;
+    else if(p!=='state'&&cubes>0) det=`${cubes} drawn`;
+    else if(iv>0) det=`${iv} ${'🟪'.repeat(iv)}`;
+    else det='0';
+    rows.push(`${cubeIcons}<span>${det}</span> ${side==='for'?'✅':'❌'}`);
+  });
+
+  if(noMC()&&dc.mc>0){
+    rows.push(`${EMOJI.mc.repeat(dc.mc)} <span>${dc.mc} drawn</span> ⚪ neutral`);
+  }
+
+  return `<div class="tally-box"><div class="tally-header"><span class="tally-for">For: ${forV}</span><span class="tally-against">Against: ${againstV}</span></div><div class="tally-rows">${rows.join('<br>')}</div></div>`;
+}
+
 function showDrawThenInf(proposer,drawn,stances){
-  showModal(`<div class="modal-title">🗳️ Cubes Drawn</div><div class="drawn-cubes">${cubeEmojis(drawn)}</div><div style="font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:14px">${drawn.length} cubes drawn from the bag</div><button class="modal-btn primary" id="toInf">Next — Influence Cubes</button>`);
+  const tally=buildTallyHTML(drawn,stances);
+  showModal(`<div class="modal-title">🗳️ Cubes Drawn</div>${tally}<button class="modal-btn primary" id="toInf">Next — Influence Cubes</button>`);
   document.getElementById('toInf').addEventListener('click',()=>collectInfluence(proposer,drawn,stances));
 }
 
@@ -451,7 +491,10 @@ function collectInfluence(proposer,drawn,stances){
     const p=pls[idx], emoji=p==='state'?'⚖️':EMOJI[p], stance=stances[p]==='for'?'✅ FOR':'❌ AGAINST';
     let val = 0;
     function renderPrompt() {
-      showModal(`<div class="modal-title">🟪 Influence Cubes</div><div class="influence-section"><div class="pass-note">Pass the device to:</div><div class="player-turn">${emoji} ${PLAYER_NAMES[p]} <span style="font-size:11px;color:var(--text-dim)">(${stance})</span></div><div class="influence-emoji">🟪</div><div style="margin-bottom:14px;font-size:12px;color:var(--text-dim)">How many Influence Cubes to add?</div><div class="inf-stepper"><button id="infDec" ${val<=0?'disabled':''}>−</button><div class="influence-input">${val}</div><button id="infInc">+</button></div></div><button class="modal-btn primary" id="iN">${idx<pls.length-1?'Next Player':'Reveal Results'}</button>`);
+      // Build tally with influence committed so far + current player's tentative value
+      const tempInf = {...inf}; tempInf[p] = val;
+      const tally = buildTallyHTML(drawn, stances, tempInf, p);
+      showModal(`<div class="modal-title">🟪 Influence Cubes</div>${tally}<div class="influence-section" style="padding-top:8px"><div class="pass-note">Pass the device to:</div><div class="player-turn">${emoji} ${PLAYER_NAMES[p]} <span style="font-size:11px;color:var(--text-dim)">(${stance})</span></div><div style="margin-bottom:10px;font-size:12px;color:var(--text-dim)">How many 🟪 to add?</div><div class="inf-stepper"><button id="infDec" ${val<=0?'disabled':''}>−</button><div class="influence-input">${val}</div><button id="infInc">+</button></div></div><button class="modal-btn primary" id="iN">${idx<pls.length-1?'Next Player':'Reveal Results'}</button>`);
       document.getElementById('infDec').addEventListener('click',()=>{ if(val>0){val--;renderPrompt();} });
       document.getElementById('infInc').addEventListener('click',()=>{ val++;renderPrompt(); });
       document.getElementById('iN').addEventListener('click',()=>{inf[p]=val;idx++;if(idx<pls.length)prompt();else resolveVote(proposer,drawn,stances,inf);});

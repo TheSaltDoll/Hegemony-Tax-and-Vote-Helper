@@ -156,6 +156,7 @@
     <div class="section"><div class="section-title" style="color:var(--accent-cap)">Capitalist</div>
       <div class="param-row"><div class="param-label">Operational Cap. Companies</div><div class="stepper" data-param="capOps" data-min="0" data-max="12" data-val="3"><button class="dec">−</button><div class="stepper-val">3</div><button class="inc">+</button></div></div>
       <div class="param-row"><div class="param-label">Revenue</div><input type="number" class="num-input" id="capRevenue" value="120" min="0" inputmode="numeric"></div>
+      <div class="param-row"><div class="param-label">Capital</div><input type="number" class="num-input" id="capCapital" value="0" min="0" inputmode="numeric"></div>
     </div>
     <button class="calc-btn" id="calcBtn">Calculate Taxes</button>
     <div class="results" id="results"><div class="result-card wc" id="resWC"></div><div class="result-card mc" id="resMC"></div><div class="result-card cap" id="resCap"></div></div>
@@ -181,7 +182,7 @@
 <div class="modal-overlay" id="modalOverlay"><div class="modal" id="modalContent"></div></div>
 
 <script>
-const taxState = { policy2:'B', policy3:'A', policy4:'B', policy5:'C', wcPop:3, mcPop:3, mcCompanies:2, mcOps:2, capOps:3, capRevenue:120 };
+const taxState = { policy2:'B', policy3:'A', policy4:'B', policy5:'C', wcPop:3, mcPop:3, mcCompanies:2, mcOps:2, capOps:3, capRevenue:120, capCapital:0 };
 let playerCount = 4;
 function noMC(){ return playerCount === 2; }
 function hasState(){ return playerCount === 4; }
@@ -252,19 +253,44 @@ document.querySelectorAll('.stepper[data-param]').forEach(stepper => {
 });
 
 document.getElementById('capRevenue').addEventListener('input', e=>{ let v=parseInt(e.target.value)||0; if(v<0)v=0; taxState.capRevenue=v; });
+document.getElementById('capCapital').addEventListener('input', e=>{ let v=parseInt(e.target.value)||0; if(v<0)v=0; taxState.capCapital=v; });
 
 document.getElementById('calcBtn').addEventListener('click', () => {
-  const {policy2,policy3,wcPop,mcCompanies,mcOps,capOps,capRevenue}=taxState;
+  const {policy2,policy3,wcPop,mcCompanies,mcOps,capOps,capRevenue,capCapital}=taxState;
   const tm=calcTaxMultiplier(), wcR=incomeTaxTable[policy2][policy3], wcT=wcR*wcPop;
   const mcET=mcOps*tm, mcIR=incomeTaxTable[policy2][policy3], mcIT=mcIR*mcCompanies, mcTT=mcET+mcIT;
-  const capET=capOps*tm, revAfter=capRevenue-capET, corpT=getCorporateTax(Math.max(0,revAfter),policy3), capTT=capET+corpT;
+  const capET=capOps*tm;
   const results=document.getElementById('results'); results.classList.add('visible');
   document.querySelectorAll('.result-card').forEach(c=>{c.classList.remove('animate');c.offsetHeight;c.style.opacity='0';c.style.transform='translateY(12px)';});
   requestAnimationFrame(()=>document.querySelectorAll('.result-card').forEach(c=>c.classList.add('animate')));
   document.getElementById('resWC').innerHTML=`<div class="result-header"><div class="result-name">Working Class</div><div class="result-total">§${wcT}</div></div><div class="result-breakdown">Tax per population: <span>${wcR}</span> (2${policy2}+3${policy3})<br>× Population: <span>${wcPop}</span><br>= Total: <span>${wcR} × ${wcPop} = ${wcT}</span></div>`;
   if(!noMC()){ document.getElementById('resMC').style.display=''; document.getElementById('resMC').innerHTML=`<div class="result-header"><div class="result-name">Middle Class</div><div class="result-total">§${mcTT}</div></div><div class="result-breakdown">Employment Tax: <span>${mcOps}</span> co. × <span>${tm}</span> = <span>${mcET}</span><br>Income Tax per co.: <span>${mcIR}</span> (2${policy2}+3${policy3})<br>× MC Worker co.: <span>${mcCompanies}</span> = <span>${mcIT}</span><br>= Total: <span>${mcET} + ${mcIT} = ${mcTT}</span></div>`; } else { document.getElementById('resMC').style.display='none'; }
-  const rn=revAfter<0?`Revenue after Emp. Tax: <span>${capRevenue} − ${capET} = ${revAfter}</span> (treated as 0)`:`Revenue after Emp. Tax: <span>${capRevenue} − ${capET} = ${revAfter}</span>`;
-  document.getElementById('resCap').innerHTML=`<div class="result-header"><div class="result-name">Capitalist</div><div class="result-total">§${capTT}</div></div><div class="result-breakdown">Employment Tax: <span>${capOps}</span> co. × <span>${tm}</span> = <span>${capET}</span><br>${rn}<br>Corporate Tax (3${policy3}): <span>${corpT}</span><br>= Total: <span>${capET} + ${corpT} = ${capTT}</span></div>`;
+  // --- Capitalist: pay Employment Tax from Revenue, then Capital, then Loans ---
+  let cRev=capRevenue, cCap=capCapital, cLoans=0, etLeft=capET;
+  const etFromRev=Math.min(etLeft,cRev); cRev-=etFromRev; etLeft-=etFromRev;
+  const etFromCap=Math.min(etLeft,cCap); cCap-=etFromCap; etLeft-=etFromCap;
+  if(etLeft>0){const n=Math.ceil(etLeft/50);cLoans+=n;cCap+=(n*50)-etLeft;etLeft=0;}
+  // Corporate Tax based on remaining Revenue
+  const corpT=getCorporateTax(cRev,policy3);
+  // Pay Corporate Tax from Revenue, then Capital, then Loans
+  let ctLeft=corpT;
+  const ctFromRev=Math.min(ctLeft,cRev); cRev-=ctFromRev; ctLeft-=ctFromRev;
+  const ctFromCap=Math.min(ctLeft,cCap); cCap-=ctFromCap; ctLeft-=ctFromCap;
+  if(ctLeft>0){const n=Math.ceil(ctLeft/50);cLoans+=n;cCap+=(n*50)-ctLeft;ctLeft=0;}
+  const capTT=capET+corpT;
+  // Build breakdown
+  const cl=[];
+  cl.push(`Employment Tax: <span>${capOps}</span> co. × <span>${tm}</span> = <span>${capET}</span>`);
+  const etParts=[]; if(etFromRev>0)etParts.push(`${etFromRev} from Rev`); if(etFromCap>0)etParts.push(`${etFromCap} from Cap`);
+  if(etParts.length>0) cl.push(`  paid: <span>${etParts.join(' + ')}</span>`);
+  cl.push(`Revenue after Emp. Tax: <span>${capRevenue-etFromRev}</span>`);
+  cl.push(`Corporate Tax (3${policy3}): <span>${corpT}</span>`);
+  cl.push(`= Total Tax: <span>${capET} + ${corpT} = ${capTT}</span>`);
+  cl.push(`―――`);
+  cl.push(`Final Revenue: <span>${cRev}</span>`);
+  cl.push(`Final Capital: <span>${cCap}</span>`);
+  if(cLoans>0) cl.push(`Loans needed: <span>${cLoans}</span> (§${cLoans*50})`);
+  document.getElementById('resCap').innerHTML=`<div class="result-header"><div class="result-name">Capitalist</div><div class="result-total">§${capTT}</div></div><div class="result-breakdown">${cl.join('<br>')}</div>`;
 });
 
 // Voting bag

@@ -118,29 +118,6 @@
   .tally-for{color:var(--green)} .tally-against{color:var(--accent-wc)} .tally-neutral{color:var(--accent-mc)}
   .tally-rows{line-height:1.7;color:var(--text-dim)}
   .tally-rows span{font-weight:600;color:var(--text)}
-  .tally-cols{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-  .tally-col{background:var(--bg);border-radius:10px;padding:12px 10px;font-family:'JetBrains Mono',monospace;font-size:12px;min-height:80px}
-  .tally-col.col-for{border:1px solid rgba(74,240,122,0.3)}
-  .tally-col.col-against{border:1px solid rgba(240,80,80,0.3)}
-  .tally-col-head{font-size:13px;font-weight:700;text-align:center;margin-bottom:8px;letter-spacing:1px}
-  .col-for .tally-col-head{color:var(--green)}
-  .col-against .tally-col-head{color:var(--accent-wc)}
-  .tally-col-body{font-size:18px;line-height:1.5;text-align:center;word-break:break-all}
-  .tally-col-body .ic-line{font-size:14px;margin-top:6px;color:var(--text-dim);display:block}
-  .tally-col-body .ic-line span{color:var(--text);font-weight:600}
-  .tally-col-divider{border-top:1px dashed var(--border);margin:8px 0 4px;font-size:10px;color:var(--text-dim);text-align:center;letter-spacing:1px}
-  .infl-overview{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;justify-content:center}
-  .infl-overview .infl-chip{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:4px 8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim)}
-  .infl-overview .infl-chip span{color:var(--text);font-weight:600}
-  .stash-cols{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-  .stash-col{background:var(--bg);border-radius:10px;padding:10px;font-family:'JetBrains Mono',monospace;font-size:11px;min-height:50px}
-  .stash-col.col-for{border:1px solid rgba(74,240,122,0.3)}
-  .stash-col.col-against{border:1px solid rgba(240,80,80,0.3)}
-  .stash-col-head{font-size:10px;font-weight:700;text-align:center;margin-bottom:6px;letter-spacing:1px;color:var(--text-dim)}
-  .stash-col .infl-chip{background:transparent;border:none;padding:3px 0;display:block;text-align:center}
-  .stash-col-empty{font-size:11px;color:var(--text-dim);text-align:center;font-style:italic;padding:6px 0}
-  .infl-total{text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:6px}
-  .state-sq{display:inline-block;width:0.95em;height:0.95em;background:#7a7f94;border-radius:2px;vertical-align:-0.1em;margin-right:0.05em}
 </style>
 </head>
 <body>
@@ -187,15 +164,7 @@
 
   <div class="screen" id="screen-vote">
     <div class="section" id="bagOverviewSection"><div class="section-title">Voting Bag</div><div class="bag-overview" id="bagOverview"></div><div class="bag-total" id="bagTotal"></div></div>
-    <div class="section">
-      <div class="section-title">🟪 Influence Cubes</div>
-      <div class="param-row"><div class="param-label">🟥 Working Class</div><div class="stepper" data-infl="wc"><button class="dec">−</button><div class="stepper-val">1</div><button class="inc">+</button></div></div>
-      <div class="param-row" id="influMcRow"><div class="param-label">🟨 Middle Class</div><div class="stepper" data-infl="mc"><button class="dec">−</button><div class="stepper-val">1</div><button class="inc">+</button></div></div>
-      <div class="param-row"><div class="param-label">🟦 Capitalist</div><div class="stepper" data-infl="cap"><button class="dec">−</button><div class="stepper-val">1</div><button class="inc">+</button></div></div>
-      <div class="param-row" id="influStateRow"><div class="param-label"><span class="state-sq"></span> State</div><div class="stepper" data-infl="state"><button class="dec">−</button><div class="stepper-val">1</div><button class="inc">+</button></div></div>
-      <div class="infl-total" id="influTotal">In play: 4 / 35</div>
-    </div>
-    <div class="section"><div class="section-title">Add / Remove Voting Cubes</div>
+    <div class="section"><div class="section-title">Add / Remove Cubes</div>
       <div class="param-row"><div class="param-label">🟥 Working Class</div><div class="stepper" data-bag="wc" data-min="-25" data-max="25" data-val="0"><button class="dec">−</button><div class="stepper-val">0</div><button class="inc">+</button></div></div>
       <div class="param-row"><div class="param-label">🟨 Middle Class</div><div class="stepper" data-bag="mc" data-min="-25" data-max="25" data-val="0"><button class="dec">−</button><div class="stepper-val">0</div><button class="inc">+</button></div></div>
       <div class="param-row"><div class="param-label">🟦 Capitalist</div><div class="stepper" data-bag="cap" data-min="-25" data-max="25" data-val="0"><button class="dec">−</button><div class="stepper-val">0</div><button class="inc">+</button></div></div>
@@ -218,9 +187,6 @@ let playerCount = 4;
 function noMC(){ return playerCount === 2; }
 function hasState(){ return playerCount === 4; }
 const bag = { wc:8, mc:8, cap:8 };
-const influence = { wc:1, mc:1, cap:1, state:1 };
-const INFL_MAX = 35;
-function influTotal(){ return influence.wc + influence.mc + influence.cap + influence.state; }
 const CUBE_MAX = 25;
 const EMOJI = { wc:'🟥', mc:'🟨', cap:'🟦', inf:'🟪' };
 const PLAYER_NAMES = { wc:'Working Class', mc:'Middle Class', cap:'Capitalist', state:'State' };
@@ -243,10 +209,7 @@ document.querySelectorAll('#playerCountControl .seg-btn').forEach(btn => {
     playerCount = parseInt(btn.dataset.val);
     document.getElementById('mcTaxSection').style.display = noMC() ? 'none' : '';
     document.getElementById('resMC').style.display = noMC() ? 'none' : '';
-    document.getElementById('influMcRow').style.display = noMC() ? 'none' : '';
-    document.getElementById('influStateRow').style.display = hasState() ? '' : 'none';
     renderBagOverview();
-    renderInfluence();
   });
 });
 
@@ -351,25 +314,6 @@ document.getElementById('applyBagBtn').addEventListener('click',()=>{
   document.querySelectorAll('.stepper[data-bag]').forEach(s=>{s.querySelector('.stepper-val').textContent='0';if(s._update)s._update();});
   renderBagOverview();
 });
-
-// Influence cube steppers (live, mutate state directly)
-function renderInfluence(){
-  document.querySelectorAll('.stepper[data-infl]').forEach(s=>{
-    const r=s.dataset.infl;
-    s.querySelector('.stepper-val').textContent=influence[r];
-    s.querySelector('.dec').disabled=influence[r]<=0;
-    s.querySelector('.inc').disabled=influence[r]>=35||influTotal()>=INFL_MAX;
-  });
-  document.getElementById('influTotal').textContent=`In play: ${influTotal()} / ${INFL_MAX}`;
-}
-
-document.querySelectorAll('.stepper[data-infl]').forEach(stepper=>{
-  const role=stepper.dataset.infl, decBtn=stepper.querySelector('.dec'), incBtn=stepper.querySelector('.inc');
-  decBtn.addEventListener('click',()=>{ if(influence[role]>0){influence[role]--;renderInfluence();} });
-  incBtn.addEventListener('click',()=>{ if(influence[role]<35&&influTotal()<INFL_MAX){influence[role]++;renderInfluence();} });
-  let iv; [decBtn,incBtn].forEach(b=>{ b.addEventListener('touchstart',e=>{e.preventDefault();b.click();iv=setInterval(()=>b.click(),120)}); b.addEventListener('touchend',()=>clearInterval(iv)); b.addEventListener('touchcancel',()=>clearInterval(iv)); });
-});
-renderInfluence();
 
 // Draw helpers
 function drawFromBag(count){
@@ -477,33 +421,20 @@ function pollShow(player,drawn){
 
 // Call a Vote
 document.getElementById('btnCallVote').addEventListener('click',()=>{
-  const opts=proposerOptsHTML('startVF');
+  const opts=playerOptsHTML('startVF');
   showModal(`<div class="modal-title">🗳️ Call a Vote</div><div style="font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:14px">Who is proposing the bill?</div>${opts}<button class="modal-btn secondary" style="margin-top:4px" onclick="closeModal()">Cancel</button>`);
 });
 window.startVF=function(p){collectStancesThenDraw(p);};
 
-function getCardPlayers(){
-  // For card-playing actions (Fake News, IG, Polling) — only player classes (no State)
-  return noMC() ? ['wc','cap'] : ['wc','mc','cap'];
-}
-function getVoteProposers(){
-  // For Call a Vote — includes State if in 4-player mode
-  const arr = noMC() ? ['wc','cap'] : ['wc','mc','cap'];
-  if(hasState()) arr.push('state');
-  return arr;
-}
-function playerEmoji(p){ return p==='state' ? '<span class="state-sq"></span>' : EMOJI[p]; }
+function getCardPlayers(){ return noMC() ? ['wc','cap'] : ['wc','mc','cap']; }
 function playerOptsHTML(fnName){
   return getCardPlayers().map(r => `<button class="modal-btn secondary" onclick="${fnName}('${r}')">${EMOJI[r]} ${PLAYER_NAMES[r]}</button>`).join('');
-}
-function proposerOptsHTML(fnName){
-  return getVoteProposers().map(r => `<button class="modal-btn secondary" onclick="${fnName}('${r}')">${playerEmoji(r)} ${PLAYER_NAMES[r]}</button>`).join('');
 }
 function getVotePlayers(){ if(noMC()) return hasState()?['wc','cap','state']:['wc','cap']; return hasState()?['wc','mc','cap','state']:['wc','mc','cap']; }
 
 function renderStanceRows(stances,proposer){
   return getVotePlayers().map(p=>{
-    const emoji=playerEmoji(p), dis=p===proposer;
+    const emoji=p==='state'?'⚖️':EMOJI[p], dis=p===proposer;
     return `<div class="vote-stance-row"><div class="vote-stance-label">${emoji} ${PLAYER_NAMES[p]}</div><div class="stance-toggle"><button class="stance-btn ${stances[p]==='for'?'active-for':''}" ${dis?'disabled':''} data-player="${p}" data-stance="for">For</button><button class="stance-btn ${stances[p]==='against'?'active-against':''}" ${dis?'disabled':''} data-player="${p}" data-stance="against">Against</button></div></div>`;
   }).join('');
 }
@@ -511,7 +442,7 @@ function renderStanceRows(stances,proposer){
 function collectStancesThenDraw(proposer){
   const st={wc:'against',mc:'against',cap:'against',state:'against'}; st[proposer]='for';
   function render(){
-    showModal(`<div class="modal-title">🗳️ Vote — Stances</div><div style="font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:12px">${playerEmoji(proposer)} ${PLAYER_NAMES[proposer]} proposes. Select stances before drawing.</div><div id="sl">${renderStanceRows(st,proposer)}</div><button class="modal-btn primary" id="sd" style="margin-top:14px">Draw Cubes</button><button class="modal-btn secondary" id="sc">Cancel Vote</button>`);
+    showModal(`<div class="modal-title">🗳️ Vote — Stances</div><div style="font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:12px">${EMOJI[proposer]} ${PLAYER_NAMES[proposer]} proposes. Select stances before drawing.</div><div id="sl">${renderStanceRows(st,proposer)}</div><button class="modal-btn primary" id="sd" style="margin-top:14px">Draw Cubes</button><button class="modal-btn secondary" id="sc">Cancel Vote</button>`);
     document.querySelectorAll('.stance-btn:not([disabled])').forEach(b=>b.addEventListener('click',()=>{st[b.dataset.player]=b.dataset.stance;render();}));
     document.getElementById('sc').addEventListener('click',()=>closeModal());
     document.getElementById('sd').addEventListener('click',()=>voteDraw(proposer,st,[]));
@@ -527,74 +458,38 @@ function voteDraw(proposer,stances,so){
   showDrawThenInf(proposer,all,stances);
 }
 
-function buildTallyHTML(drawn, stances, infObj, currentPlayer, showAllInfluence) {
-  // drawn: array of 'wc'/'mc'/'cap'
-  // stances: per-player 'for'/'against'
-  // infObj: per-player influence committed so far (optional)
-  // currentPlayer: if set, only that player's influence shows in tally (secret mode)
-  // showAllInfluence: if true, show everyone's influence (for final reveal)
+function buildTallyHTML(drawn, stances, influence, currentPlayer) {
+  // currentPlayer: if set, only show that player's influence (secret mode)
+  // if not set, show all influence (used for final results / initial draw with no influence)
   const dc={wc:0,mc:0,cap:0}; drawn.forEach(r=>dc[r]++);
-  const inf = infObj || {wc:0,mc:0,cap:0,state:0};
+  const inf = influence || {wc:0,mc:0,cap:0,state:0};
   let forV=0, againstV=0;
-  const forCubes={wc:0,mc:0,cap:0}, againstCubes={wc:0,mc:0,cap:0};
-  const forInf={wc:0,mc:0,cap:0,state:0}, againstInf={wc:0,mc:0,cap:0,state:0};
+  const rows=[];
   const vp=getVotePlayers();
 
   vp.forEach(p=>{
     const cubes=p==='state'?0:dc[p];
-    const showInf = showAllInfluence || (currentPlayer && p === currentPlayer) || (!currentPlayer && !showAllInfluence ? false : false);
-    // Simpler: if showAllInfluence true → show all; else if currentPlayer set → only currentPlayer's; else → none.
-    const includeInf = showAllInfluence || (currentPlayer && p === currentPlayer);
-    const iv = includeInf ? (inf[p]||0) : 0;
+    // Only count this player's influence if they are the currentPlayer or if no secret mode
+    const showInf = !currentPlayer || p === currentPlayer;
+    const iv = showInf ? (inf[p]||0) : 0;
+    const total=cubes+iv;
     const side=stances[p];
-    if(side==='for'){
-      forV += cubes + iv;
-      if(p!=='state' && cubes>0) forCubes[p]+=cubes;
-      if(iv>0) forInf[p]+=iv;
-    } else {
-      againstV += cubes + iv;
-      if(p!=='state' && cubes>0) againstCubes[p]+=cubes;
-      if(iv>0) againstInf[p]+=iv;
-    }
+    if(side==='for')forV+=total; else againstV+=total;
+    const emoji=p==='state'?'⚖️':EMOJI[p];
+    const cubeIcons = p!=='state'&&cubes>0 ? emoji.repeat(cubes)+' ' : '';
+    let det;
+    if(p!=='state'&&cubes>0&&iv>0) det=`${cubes} drawn + ${iv} ${'🟪'.repeat(iv)}`;
+    else if(p!=='state'&&cubes>0) det=`${cubes} drawn`;
+    else if(iv>0) det=`${iv} ${'🟪'.repeat(iv)}`;
+    else det='0';
+    rows.push(`${cubeIcons}<span>${det}</span> ${side==='for'?'✅':'❌'}`);
   });
 
-  function colBody(side){
-    const cubeSrc = side==='for' ? forCubes : againstCubes;
-    const infSrc = side==='for' ? forInf : againstInf;
-    // Big emoji row for cubes
-    let cubeRow='';
-    ['wc','mc','cap'].forEach(r=>{
-      if(cubeSrc[r]>0) cubeRow += EMOJI[r].repeat(cubeSrc[r]);
-    });
-    if(!cubeRow) cubeRow = '<span style="font-size:12px;color:var(--text-dim)">no cubes</span>';
-    // Influence lines per player
-    const infLines=[];
-    ['wc','mc','cap','state'].forEach(r=>{
-      if(infSrc[r]>0){
-        const em = playerEmoji(r);
-        infLines.push(`<span class="ic-line">${em} +${infSrc[r]} ${'🟪'.repeat(infSrc[r])}</span>`);
-      }
-    });
-    let infBlock='';
-    if(infLines.length>0) infBlock = `<div class="tally-col-divider">influence</div>${infLines.join('')}`;
-    return `<div class="tally-col-body">${cubeRow}${infBlock}</div>`;
-  }
-
-  let neutralBlock='';
   if(noMC()&&dc.mc>0){
-    neutralBlock = `<div style="background:var(--bg);border-radius:10px;padding:8px;margin-bottom:12px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim)">${EMOJI.mc.repeat(dc.mc)} <span style="color:var(--text);font-weight:600">${dc.mc} neutral</span> ⚪</div>`;
+    rows.push(`${EMOJI.mc.repeat(dc.mc)} <span>${dc.mc} drawn</span> ⚪ neutral`);
   }
 
-  return `<div class="tally-cols">
-    <div class="tally-col col-for">
-      <div class="tally-col-head">For: ${forV}</div>
-      ${colBody('for')}
-    </div>
-    <div class="tally-col col-against">
-      <div class="tally-col-head">Against: ${againstV}</div>
-      ${colBody('against')}
-    </div>
-  </div>${neutralBlock}`;
+  return `<div class="tally-box"><div class="tally-header"><span class="tally-for">For: ${forV}</span><span class="tally-against">Against: ${againstV}</span></div><div class="tally-rows">${rows.join('<br>')}</div></div>`;
 }
 
 function showDrawThenInf(proposer,drawn,stances){
@@ -607,7 +502,7 @@ function showDrawThenInf(proposer,drawn,stances){
 function startVote(proposer,drawn){
   const st={wc:'against',mc:'against',cap:'against',state:'against'}; st[proposer]='for';
   function render(){
-    showModal(`<div class="modal-title">🗳️ Vote — Stances</div><div style="font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:8px">${playerEmoji(proposer)} ${PLAYER_NAMES[proposer]} proposes. Cubes already drawn:</div><div class="drawn-cubes">${cubeEmojis(drawn)}</div><div id="sl">${renderStanceRows(st,proposer)}</div><button class="modal-btn primary" id="sd" style="margin-top:14px">Next — Influence Cubes</button><button class="modal-btn secondary" id="sc">Cancel Vote</button>`);
+    showModal(`<div class="modal-title">🗳️ Vote — Stances</div><div style="font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:8px">${EMOJI[proposer]} ${PLAYER_NAMES[proposer]} proposes. Cubes already drawn:</div><div class="drawn-cubes">${cubeEmojis(drawn)}</div><div id="sl">${renderStanceRows(st,proposer)}</div><button class="modal-btn primary" id="sd" style="margin-top:14px">Next — Influence Cubes</button><button class="modal-btn secondary" id="sc">Cancel Vote</button>`);
     document.querySelectorAll('.stance-btn:not([disabled])').forEach(b=>b.addEventListener('click',()=>{st[b.dataset.player]=b.dataset.stance;render();}));
     document.getElementById('sc').addEventListener('click',()=>{drawn.forEach(r=>bag[r]++);showModal(`<div class="modal-title">🗳️ Vote Cancelled</div><div style="font-size:12px;text-align:center;margin-bottom:14px;color:var(--text-dim)">All cubes returned to the bag.</div><button class="modal-btn primary" onclick="closeModal()">Done</button>`);});
     document.getElementById('sd').addEventListener('click',()=>collectInfluence(proposer,drawn,st));
@@ -615,165 +510,51 @@ function startVote(proposer,drawn){
   render();
 }
 
-// Determines if a player should be prompted to add influence.
-// Conditions for being prompted (player must have influence > 0 in either case):
-//   A) They could, theoretically, influence the outcome (considering same-stance allies' uncommitted influence)
-//   B) They are For with no drawn cubes (or are State) AND there is still any chance the bill can pass
-function shouldPromptForInfluence(player, drawn, stances, committedInf){
-  if(influence[player] <= 0) return false;
-
-  const dc={wc:0,mc:0,cap:0}; drawn.forEach(r=>dc[r]++);
-
-  // Compute current votes including all committed influence
-  let forV=0, againstV=0;
-  getVotePlayers().forEach(p=>{
-    const cubes = p==='state'?0:dc[p];
-    const inf = committedInf[p]||0;
-    if(stances[p]==='for') forV += cubes + inf;
-    else againstV += cubes + inf;
-  });
-
-  // Available uncommitted influence per side from ALL voting players (not just those iterated later)
-  let forAvail=0, againstAvail=0;
-  getVotePlayers().forEach(p=>{
-    const uncommitted = influence[p] - (committedInf[p]||0);
-    if(uncommitted <= 0) return;
-    if(stances[p]==='for') forAvail += uncommitted;
-    else againstAvail += uncommitted;
-  });
-
-  // Pass requires For >= Against.
-  // Outcome envelopes (assuming opponents go max / supporters go min, or vice versa):
-  const maxFor = forV + forAvail;
-  const minFor = forV;
-  const maxAgainst = againstV + againstAvail;
-  const minAgainst = againstV;
-
-  const guaranteedPass = minFor >= maxAgainst;     // even if For adds 0 and Against goes max, For still wins
-  const guaranteedFail = maxFor < minAgainst;      // even if For maxes out, can't catch current Against
-
-  // Rule (B): For-stance with no drawn cubes, or State — but only if there's still a chance to pass.
-  // If guaranteedFail, support is meaningless (no point spending influence on a doomed bill).
-  // If guaranteedPass, no spend needed either.
-  if(stances[player]==='for'){
-    const noCubes = (player==='state') || (dc[player]===0);
-    if(noCubes){
-      if(guaranteedFail) return false; // no chance of passing — don't bother
-      if(guaranteedPass) return false; // already passing for sure — no spend needed
-      return true; // there's still a chance, give them the option to support
-    }
-  }
-
-  // Rule (A): general can-influence-outcome check
-  if(guaranteedPass || guaranteedFail){
-    return false;
-  }
-  return true;
-}
-
-function collectInfluence(proposer, drawn, stances){
-  const committedInf = {wc:0, mc:0, cap:0, state:0};
-  // Snapshot each player's influence stash at the start so the per-player stash display
-  // doesn't leak how much earlier players spent. The current player sees their own tentative subtraction.
-  const stashAtStart = {wc:influence.wc, mc:influence.mc, cap:influence.cap, state:influence.state};
-  const vp = getVotePlayers();
-
-  // We'll iterate through voting players in order, but only prompt those who meet criteria.
-  // Compute the eligibility list ONCE up front based on initial state (before any influence committed).
-  // This prevents leaking information: a skip later wouldn't reveal that a previous player's influence locked the outcome.
-  const eligibleList = [];
-  for(let i=0; i<vp.length; i++){
-    const p = vp[i];
-    if(shouldPromptForInfluence(p, drawn, stances, committedInf)){
-      eligibleList.push(p);
-    }
-  }
-
-  function step(eIdx){
-    if(eIdx >= eligibleList.length){
-      resolveVote(proposer, drawn, stances, committedInf);
-      return;
-    }
-    promptPlayer(eligibleList[eIdx], eIdx);
-  }
-
-  function promptPlayer(p, eIdx){
-    const emoji = playerEmoji(p);
-    const stance = stances[p]==='for' ? '✅ FOR' : '❌ AGAINST';
-    const maxAdd = influence[p];
+// Influence
+function collectInfluence(proposer,drawn,stances){
+  const inf={wc:0,mc:0,cap:0,state:0}, pls=getVotePlayers(); let idx=0;
+  function prompt(){
+    const p=pls[idx], emoji=p==='state'?'⚖️':EMOJI[p], stance=stances[p]==='for'?'✅ FOR':'❌ AGAINST';
     let val = 0;
-
-    function render(){
-      const tempInf = {...committedInf}; tempInf[p] = val;
-      const tally = buildTallyHTML(drawn, stances, tempInf, p, false);
-      // Influence stash split by stance into two columns matching the tally above
-      const stashPlayers = ['wc','mc','cap','state'].filter(r=>{
-        if(r==='mc' && noMC()) return false;
-        if(r==='state' && !hasState()) return false;
-        return true;
-      });
-      function chipFor(r){
-        const cur = (r===p) ? stashAtStart[r] - val : stashAtStart[r];
-        return `<div class="infl-chip">${playerEmoji(r)} <span>${cur}</span> 🟪</div>`;
-      }
-      const forStash = stashPlayers.filter(r=>stances[r]==='for').map(chipFor).join('');
-      const againstStash = stashPlayers.filter(r=>stances[r]==='against').map(chipFor).join('');
-      const stashBlock = `<div style="margin-bottom:10px"><div style="font-size:10px;color:var(--text-dim);text-align:center;letter-spacing:1px;margin-bottom:6px">EACH PLAYER'S STASH</div><div class="stash-cols"><div class="stash-col col-for"><div class="stash-col-head">For</div>${forStash||'<div class="stash-col-empty">—</div>'}</div><div class="stash-col col-against"><div class="stash-col-head">Against</div>${againstStash||'<div class="stash-col-empty">—</div>'}</div></div></div>`;
-
-      showModal(`<div class="modal-title">🟪 Influence Cubes</div>${tally}${stashBlock}<div class="influence-section" style="padding-top:8px"><div class="pass-note">Pass the device to:</div><div class="player-turn">${emoji} ${PLAYER_NAMES[p]} <span style="font-size:11px;color:var(--text-dim)">(${stance})</span></div><div style="margin-bottom:10px;font-size:12px;color:var(--text-dim)">Add 🟪 (you have ${maxAdd})</div><div class="inf-stepper"><button id="infDec" ${val<=0?'disabled':''}>−</button><div class="influence-input">${val}</div><button id="infInc" ${val>=maxAdd?'disabled':''}>+</button></div></div><button class="modal-btn primary" id="iN">Next</button>`);
-      document.getElementById('infDec').addEventListener('click',()=>{ if(val>0){val--;render();} });
-      document.getElementById('infInc').addEventListener('click',()=>{ if(val<maxAdd){val++;render();} });
-      document.getElementById('iN').addEventListener('click',()=>{
-        committedInf[p] = val;
-        influence[p] -= val; // decrement player's stash (cubes return to general pool)
-        renderInfluence(); // update voting-screen stepper display
-        step(eIdx+1);
-      });
+    function renderPrompt() {
+      // Build tally with influence committed so far + current player's tentative value
+      const tempInf = {...inf}; tempInf[p] = val;
+      const tally = buildTallyHTML(drawn, stances, tempInf, p);
+      showModal(`<div class="modal-title">🟪 Influence Cubes</div>${tally}<div class="influence-section" style="padding-top:8px"><div class="pass-note">Pass the device to:</div><div class="player-turn">${emoji} ${PLAYER_NAMES[p]} <span style="font-size:11px;color:var(--text-dim)">(${stance})</span></div><div style="margin-bottom:10px;font-size:12px;color:var(--text-dim)">How many 🟪 to add?</div><div class="inf-stepper"><button id="infDec" ${val<=0?'disabled':''}>−</button><div class="influence-input">${val}</div><button id="infInc">+</button></div></div><button class="modal-btn primary" id="iN">${idx<pls.length-1?'Next Player':'Reveal Results'}</button>`);
+      document.getElementById('infDec').addEventListener('click',()=>{ if(val>0){val--;renderPrompt();} });
+      document.getElementById('infInc').addEventListener('click',()=>{ val++;renderPrompt(); });
+      document.getElementById('iN').addEventListener('click',()=>{inf[p]=val;idx++;if(idx<pls.length)prompt();else resolveVote(proposer,drawn,stances,inf);});
     }
-    render();
+    renderPrompt();
   }
-
-  step(0);
+  prompt();
 }
 
 // Resolve vote
-function resolveVote(proposer,drawn,stances,committedInf){
+function resolveVote(proposer,drawn,stances,influence){
   const dc={wc:0,mc:0,cap:0}; drawn.forEach(r=>dc[r]++);
-  let forV=0, againstV=0;
-  const vp = getVotePlayers();
+  let forV=0,againstV=0; const vp=getVotePlayers(), tl=[];
+  const mcNeutral=noMC()?dc.mc:0;
   vp.forEach(p=>{
-    const cubes = p==='state' ? 0 : dc[p];
-    const inf = committedInf[p]||0;
-    if(stances[p]==='for') forV += cubes + inf;
-    else againstV += cubes + inf;
+    const cubes=p==='state'?0:dc[p], inf=influence[p], total=cubes+inf, side=stances[p];
+    if(side==='for')forV+=total; else againstV+=total;
+    const emoji=p==='state'?'⚖️':EMOJI[p];
+    let det=''; if(p!=='state'&&cubes>0&&inf>0)det=`(${cubes} drawn + ${inf} 🟪)`; else if(p!=='state'&&cubes>0)det=`(${cubes} drawn)`; else if(inf>0)det=`(${inf} 🟪)`; else det='(0)';
+    tl.push(`${emoji} ${PLAYER_NAMES[p]}: <span>${total}</span> ${side==='for'?'✅':'❌'} ${det}`);
   });
-  const mcNeutral = noMC() ? dc.mc : 0;
-  const allYellow = noMC() && drawn.length===5 && drawn.every(r=>r==='mc');
-  const passed = allYellow || (forV >= againstV);
-
-  // Cube movements
+  if(noMC()&&mcNeutral>0) tl.push(`${EMOJI.mc} ${PLAYER_NAMES.mc}: <span>${mcNeutral}</span> ⚪ neutral (discarded)`);
+  const allYellow=noMC()&&drawn.length===5&&drawn.every(r=>r==='mc');
+  const passed=allYellow||(forV>=againstV);
   const mv=[];
   ['wc','mc','cap'].forEach(r=>{
-    const c=dc[r]; if(c===0) return;
-    if(noMC() && r==='mc'){ mv.push(`${EMOJI[r]}×${c} → supply (neutral, discarded)`); return; }
+    const c=dc[r]; if(c===0)return;
+    if(noMC()&&r==='mc'){mv.push(`${EMOJI[r]}×${c} → supply (neutral, discarded)`);return;}
     const side=stances[r];
-    if(passed){
-      if(side==='for') mv.push(`${EMOJI[r]}×${c} → supply (supported, passed)`);
-      else { bag[r]+=c; mv.push(`${EMOJI[r]}×${c} → bag (opposed, passed)`); }
-    } else {
-      if(side==='against') mv.push(`${EMOJI[r]}×${c} → supply (opposed, failed)`);
-      else { bag[r]+=c; mv.push(`${EMOJI[r]}×${c} → bag (supported, failed)`); }
-    }
+    if(passed){if(side==='for')mv.push(`${EMOJI[r]}×${c} → supply (supported, passed)`);else{bag[r]+=c;mv.push(`${EMOJI[r]}×${c} → bag (opposed, passed)`);}}
+    else{if(side==='against')mv.push(`${EMOJI[r]}×${c} → supply (opposed, failed)`);else{bag[r]+=c;mv.push(`${EMOJI[r]}×${c} → bag (supported, failed)`);}}
   });
-
-  // Build 2-column display showing all influence (reveal mode)
-  const finalTally = buildTallyHTML(drawn, stances, committedInf, null, true);
-
-  let sn=''; if(allYellow) sn='<div style="font-size:11px;color:var(--accent-mc);text-align:center;margin-bottom:8px">All 5 cubes were 🟨 neutral — bill passes automatically.</div>';
-
-  const tieNote = !allYellow && forV===againstV ? '<div style="font-size:11px;color:var(--text-dim);text-align:center;margin-bottom:8px">(Tie — bill passes)</div>' : '';
-
-  showModal(`<div class="modal-title">🗳️ Vote Results</div><div class="vote-result-box ${passed?'passed':'failed'}"><div class="result-label">${passed?'BILL PASSED':'BILL FAILED'}</div></div>${sn}${tieNote}${finalTally}<div class="cube-movement"><div style="font-weight:700;color:var(--text);margin-bottom:4px">Voting Cube Movements:</div>${mv.length>0?mv.join('<br>'):'No cubes drawn for any player'}</div><button class="modal-btn primary" onclick="closeModal()">Done</button>`);
+  let sn=''; if(allYellow)sn='<div style="font-size:11px;color:var(--accent-mc);text-align:center;margin-bottom:8px">All 5 cubes were 🟨 neutral — bill passes automatically.</div>';
+  showModal(`<div class="modal-title">🗳️ Vote Results</div><div class="vote-result-box ${passed?'passed':'failed'}"><div class="result-label">${passed?'BILL PASSED':'BILL FAILED'}</div></div>${sn}<div style="text-align:center;margin-bottom:10px;font-family:'JetBrains Mono';font-size:13px"><span style="color:var(--green)">For: ${forV}</span> — <span style="color:var(--accent-wc)">Against: ${againstV}</span>${!allYellow&&forV===againstV?'<br><span style="font-size:11px;color:var(--text-dim)">(Tie — bill passes)</span>':''}</div><div class="vote-tally">${tl.join('<br>')}</div><div class="cube-movement"><div style="font-weight:700;color:var(--text);margin-bottom:4px">Cube Movements:</div>${mv.length>0?mv.join('<br>'):'No cubes drawn for any player'}</div><button class="modal-btn primary" onclick="closeModal()">Done</button>`);
 }
 
 renderBagOverview();

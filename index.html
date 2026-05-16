@@ -652,15 +652,14 @@ function shouldPromptForInfluence(player, drawn, stances, committedInf){
   const guaranteedPass = minFor >= maxAgainst;     // even if For adds 0 and Against goes max, For still wins
   const guaranteedFail = maxFor < minAgainst;      // even if For maxes out, can't catch current Against
 
-  // Rule (B): For-stance with no drawn cubes, or State — but only if there's still a chance to pass.
+  // Rule (B): For-stance with no drawn cubes, or State — prompt as long as there's any chance of passing.
   // If guaranteedFail, support is meaningless (no point spending influence on a doomed bill).
-  // If guaranteedPass, no spend needed either.
+  // If guaranteedPass, still prompt — they may want to materially register support for a benefit.
   if(stances[player]==='for'){
     const noCubes = (player==='state') || (dc[player]===0);
     if(noCubes){
       if(guaranteedFail) return false; // no chance of passing — don't bother
-      if(guaranteedPass) return false; // already passing for sure — no spend needed
-      return true; // there's still a chance, give them the option to support
+      return true; // bill can pass (or will pass) — give them the option to register support
     }
   }
 

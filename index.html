@@ -33,6 +33,7 @@
   .screen { display:none; } .screen.active { display:block; }
   .section { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:12px; }
   .section-title { font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-dim); margin-bottom:14px; }
+  .section-title-sub { font-weight:400; letter-spacing:0.5px; text-transform:none; opacity:0.85; }
   .param-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
   .param-row:last-child { margin-bottom:0; }
   .param-label { font-size:13px; font-weight:500; color:var(--text); flex-shrink:1; padding-right:10px; line-height:1.3; }
@@ -186,14 +187,13 @@
   </div>
 
   <div class="screen" id="screen-vote">
-    <div class="section" id="bagOverviewSection"><div class="section-title">Voting Bag</div><div class="bag-overview" id="bagOverview"></div><div class="bag-total" id="bagTotal"></div></div>
+    <div class="section" id="bagOverviewSection"><div class="section-title">Voting Bag <span class="section-title-sub" id="bagTotal"></span></div><div class="bag-overview" id="bagOverview"></div></div>
     <div class="section">
-      <div class="section-title">🟪 Influence Cubes</div>
+      <div class="section-title">🟪 Influence Cubes <span class="section-title-sub" id="influTotal"></span></div>
       <div class="param-row"><div class="param-label">🟥 Working Class</div><div class="stepper" data-infl="wc"><button class="dec">−</button><div class="stepper-val">1</div><button class="inc">+</button></div></div>
       <div class="param-row" id="influMcRow"><div class="param-label">🟨 Middle Class</div><div class="stepper" data-infl="mc"><button class="dec">−</button><div class="stepper-val">1</div><button class="inc">+</button></div></div>
       <div class="param-row"><div class="param-label">🟦 Capitalist</div><div class="stepper" data-infl="cap"><button class="dec">−</button><div class="stepper-val">1</div><button class="inc">+</button></div></div>
       <div class="param-row" id="influStateRow"><div class="param-label"><span class="state-sq"></span> State</div><div class="stepper" data-infl="state"><button class="dec">−</button><div class="stepper-val">1</div><button class="inc">+</button></div></div>
-      <div class="infl-total" id="influTotal">In play: 4 / 35</div>
     </div>
     <div class="section"><div class="section-title">Add / Remove Voting Cubes</div>
       <div class="param-row"><div class="param-label">🟥 Working Class</div><div class="stepper" data-bag="wc" data-min="-25" data-max="25" data-val="0"><button class="dec">−</button><div class="stepper-val">0</div><button class="inc">+</button></div></div>
@@ -333,7 +333,7 @@ document.getElementById('calcBtn').addEventListener('click', () => {
 // Voting bag
 function renderBagOverview(){
   document.getElementById('bagOverview').innerHTML=['wc','mc','cap'].map(r=>`<div class="bag-player"><div class="emoji">${EMOJI[r]}</div><div class="bag-count">${bag[r]}</div><div class="bag-sub">supply: ${bagSupply(r)}</div></div>`).join('');
-  document.getElementById('bagTotal').textContent=`Total in bag: ${bagTotal()}`;
+  document.getElementById('bagTotal').textContent=`(${bagTotal()} total)`;
 }
 
 const bagDelta={wc:0,mc:0,cap:0};
@@ -360,7 +360,7 @@ function renderInfluence(){
     s.querySelector('.dec').disabled=influence[r]<=0;
     s.querySelector('.inc').disabled=influence[r]>=35||influTotal()>=INFL_MAX;
   });
-  document.getElementById('influTotal').textContent=`In play: ${influTotal()} / ${INFL_MAX}`;
+  document.getElementById('influTotal').textContent=`(${influTotal()} / ${INFL_MAX} in play)`;
 }
 
 document.querySelectorAll('.stepper[data-infl]').forEach(stepper=>{
